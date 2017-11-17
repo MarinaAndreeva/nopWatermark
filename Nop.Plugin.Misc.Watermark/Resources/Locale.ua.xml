@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language Name="Українська">
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkTextEnable">
+    <Value>Накласти текст</Value>
+  </LocaleResource>  
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkText">
+    <Value>Текст</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.Text">
+    <Value>Текст</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkText.Hint">
+    <Value>Цей текст буде відображатися на зображеннях магазину</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkFont">
+    <Value>Шрифт</Value>
+  </LocaleResource>  
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkFont.Hint">
+    <Value>Оберіть шрифт водяного знаку</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkTextColor">
+    <Value>Колір тексту</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkTextColor.Hint">
+    <Value>Оберіть колір тексту водяного знаку</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkTextRotatedDegree">
+    <Value>Кут повороту</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkTextRotatedDegree.Hint">
+    <Value>За замовчуванням 0 (текст відображається горизонтально). Змініть значення для відображення тексту повернутого під обраним кутом</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkPictureEnable">
+    <Value>Накласти зображення</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.Picture">
+    <Value>Зображення</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.Picture.Hint">
+    <Value>Завантажте зображення</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.Size">
+    <Value>Розмір водяного знаку у %</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.SizeErrorMessage">
+    <Value>Будь ласка, введіть значення у межах {0} - {1}</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.Size.Hint">
+    <Value>Введіть розмір водяного знаку відносно основного зображення у % (1-100)</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkPosition">
+    <Value>Розташування</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkPosition.Hint">
+    <Value>Оберіть розташування водяного знаку</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.TopLeftCornerPosition">
+    <Value>Ліворуч зверху</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.TopCenterPosition">
+    <Value>По центру зверху</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.TopRightCornerPosition">
+    <Value>Праворуч зверху</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.CenterLeftPosition">
+    <Value>Ліворуч по центру</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.CenterPosition">
+    <Value>По центру</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.CenterRightPosition">
+    <Value>Праворуч по центру</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.BottomLeftCornerPosition">
+    <Value>Ліворуч знизу</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.BottomCenterPosition">
+    <Value>По центру знизу</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.BottomRightCornerPosition">
+    <Value>Праворуч знизу</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.CommonSettings">
+    <Value>Загальні налаштування</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkOpacity">
+    <Value>Прозорість</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkOpacityErrorMessage">
+    <Value>Введіть значення у межах {0} - {1}</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkOpacity.Hint">
+    <Value>За замовчуванням 0.5 (напівпрозорий водяний знак). Оберіть значення від 0 - прозорий до 1 - непрозорий</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.ApplyOnProductPictures">
+    <Value>Увімкнути водяний знак для зображень товарів</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.ApplyOnCategoryPictures">
+    <Value>Увімкнути водяний знак для зображень категорій</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.ApplyOnManufacturerPictures">
+    <Value>Увімкнути водяний знак для зображень виробників</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkMinimumImageWidth">
+    <Value>Мінімальна довжина зображень для водяного знаку</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkMinimumImageWidth.Hint">
+    <Value>Введіть мінімальну довжину зображень для накладання водяного знаку. Водяні знаки будуть лише на зображеннях, довжина яких більше введеної. Якщо довжина = 0, водяний знак буде відображатися на всіх зображеннях</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkMinimumImageHeight">
+    <Value>Мінімальна висота зображень для водяного знаку</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkMinimumImageHeight.Hint">
+    <Value>Введіть мінімальну висоту зображень для накладання водяного знаку. Водяні знаки будуть лише на зображеннях, висота яких більше введеної. Якщо висота = 0, водяний знак буде відображатися на всіх зображеннях</Value>
+  </LocaleResource>
+</Language>

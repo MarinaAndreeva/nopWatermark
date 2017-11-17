@@ -1,0 +1,12 @@
+﻿.watermark-picture > div > img {
+    width: 100px;
+    height: auto;
+}
+
+.form-group .input-group.bootstrap-touchspin {
+    max-width: 100%
+}
+
+.button-align-center {
+    text-align: center !important;
+}

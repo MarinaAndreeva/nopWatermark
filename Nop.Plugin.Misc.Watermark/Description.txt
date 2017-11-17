@@ -1,0 +1,9 @@
+﻿Group: Misc
+FriendlyName: Image Watermark
+SystemName: Misc.Watermark
+Version: 1
+SupportedVersions: 3.90
+Author: Marina Andreieva
+DisplayOrder: 1
+FileName: Nop.Plugin.Misc.Watermark.dll
+Description: This plugin allows you to add a watermark to the images in the store (Products, Categories, Manufacturers)

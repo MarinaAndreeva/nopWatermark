@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language Name="English">
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkTextEnable">
+    <Value>Enable text watermark</Value>
+  </LocaleResource>  
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkText">
+    <Value>Text</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.Text">
+    <Value>Text</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkText.Hint">
+    <Value>The entered text will be displayed on the images</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkFont">
+    <Value>Text font</Value>
+  </LocaleResource>  
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkFont.Hint">
+    <Value>Select the font of the watermark text</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkTextColor">
+    <Value>Text color</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkTextColor.Hint">
+    <Value>Select the color of the watermark text</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkTextRotatedDegree">
+    <Value>Rotation angle</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkTextRotatedDegree.Hint">
+    <Value>Default value is 0 (the watermark text will be displayed horizontally). Change this value to display the watermark text diagonally</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkPictureEnable">
+    <Value>Enable picture watermark</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.Picture">
+    <Value>Picture</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.Picture.Hint">
+    <Value>Upload picture</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.Size">
+    <Value>Size in %</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.SizeErrorMessage">
+    <Value>Please enter a value between {0} and {1}</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.Size.Hint">
+    <Value>Enter the text size relative to the image size in % (1-100)</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkPosition">
+    <Value>Position</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkPosition.Hint">
+    <Value>Select the position where watermark will be displayed</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.TopLeftCornerPosition">
+    <Value>Top left</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.TopCenterPosition">
+    <Value>Top center</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.TopRightCornerPosition">
+    <Value>Top right</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.CenterLeftPosition">
+    <Value>Center left</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.CenterPosition">
+    <Value>Center</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.CenterRightPosition">
+    <Value>Center right</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.BottomLeftCornerPosition">
+    <Value>Bottom left</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.BottomCenterPosition">
+    <Value>Bottom center</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.BottomRightCornerPosition">
+    <Value>Bottom right</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.CommonSettings">
+    <Value>Common Settings</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkOpacity">
+    <Value>Opacity</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkOpacityErrorMessage">
+    <Value>Please enter a value between {0} and {1}</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkOpacity.Hint">
+    <Value>Default value is 0.5 (semitransparent text). Change this value to make the watermark less or more transparent (0 - transparent, 1 - opaque)</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.ApplyOnProductPictures">
+    <Value>Place watermark on the product pictures</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.ApplyOnCategoryPictures">
+    <Value>Place watermark on the category pictures</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.ApplyOnManufacturerPictures">
+    <Value>Place watermark on the manufacturer pictures</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkMinimumImageWidth">
+    <Value>Minimum image width for watermark</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkMinimumImageWidth.Hint">
+    <Value>Enter minimum image width for watermark. Watermarks will only be displayed on images that are wider than the specified width. If width = 0, the watermark will be applied for all image sizes</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkMinimumImageHeight">
+    <Value>Minimum image height for watermark</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.Watermark.WatermarkMinimumImageHeight.Hint">
+    <Value>Enter minimum image height for watermark. Watermarks will only be displayed on images that are higher than the specified height. If height = 0, the watermark will be applied for all image sizes</Value>
+  </LocaleResource>
+</Language>
