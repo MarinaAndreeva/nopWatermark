@@ -414,55 +414,25 @@ namespace Nop.Plugin.Misc.Watermark.Services
 
         private static Size ScaleRectangleToFitBounds(Size bounds, Size rect)
         {
-            Size result = rect;
-
-            if (rect.Width < bounds.Width)
+            if (rect.Width < bounds.Width && rect.Height < bounds.Height)
             {
-                result.Width = rect.Width;
-            }
-            if (rect.Height < bounds.Height)
-            {
-                result.Height = rect.Height;
+                return rect;
             }
 
-            double aspectRatio = 0;
-            if (result.Width > result.Height)
+            if (bounds.Width == 0 || bounds.Height == 0)
             {
-                aspectRatio = (double) result.Width / result.Height;
-
-                if (result.Width > bounds.Width)
-                {
-                    result.Width = bounds.Width;
-                }
-
-                result.Height = (int) (result.Width / aspectRatio);
+                return new Size(0, 0);
             }
-            else if (result.Width == result.Height)
+
+            double scaleFactorWidth = (double)rect.Width / bounds.Width;
+            double scaleFactorHeight = (double)rect.Height / bounds.Height;
+
+            double scaleFactor = Math.Max(scaleFactorWidth, scaleFactorHeight);
+            return new Size()
             {
-                if (result.Width > bounds.Width)
-                {
-                    result.Width = bounds.Width;
-                    result.Height = result.Width;
-                }
-
-                if (result.Height > bounds.Height)
-                {
-                    result.Height = bounds.Height;
-                    result.Width = result.Height;
-                }
-            }
-            else
-            {
-                aspectRatio = (double) result.Height / result.Width;
-
-                if (result.Height > bounds.Height)
-                {
-                    result.Height = bounds.Height;
-                }
-
-                result.Width = (int) (result.Height / aspectRatio);
-            }
-            return result;
+                Width = (int)(rect.Width / scaleFactor),
+                Height = (int)(rect.Height / scaleFactor)
+            };
         }
 
         private static SizeF CalculateRotatedRectSize(SizeF rectSize, double angleDeg)
