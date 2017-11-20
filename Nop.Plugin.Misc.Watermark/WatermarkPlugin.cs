@@ -91,7 +91,7 @@ namespace Nop.Plugin.Misc.Watermark
             _pictureService.DeletePicture(_pictureService.GetPictureById(_settingService.LoadSetting<WatermarkSettings>().PictureId));
 
             _settingService.DeleteSetting<WatermarkSettings>();
-            DeleteLocaleRecources();
+            DeleteLocaleResources();
 
             _settingService.ClearCache();
             new ClearCacheTask().Execute();
@@ -137,7 +137,7 @@ namespace Nop.Plugin.Misc.Watermark
             }
         }
 
-        private void DeleteLocaleRecources()
+        private void DeleteLocaleResources()
         {
             foreach (var lang in _languageService.GetAllLanguages(true))
             {
