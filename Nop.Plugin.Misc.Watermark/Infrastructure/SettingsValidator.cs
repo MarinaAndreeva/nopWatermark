@@ -17,7 +17,7 @@ namespace Nop.Plugin.Misc.Watermark.Infrastructure
     {
         public CommonWatermarkSettingsValidator(ILocalizationService localizationService)
         {
-            RuleFor(x => x.Opacity).GreaterThan(0).LessThanOrEqualTo(1).WithMessage(
+            RuleFor(x => x.Opacity).GreaterThanOrEqualTo(0).LessThanOrEqualTo(1).WithMessage(
                 localizationService.GetResource("Plugins.Misc.Watermark.WatermarkOpacityErrorMessage"), 0, 1);
 
             RuleFor(x => x.Size).GreaterThanOrEqualTo(0).LessThanOrEqualTo(100)

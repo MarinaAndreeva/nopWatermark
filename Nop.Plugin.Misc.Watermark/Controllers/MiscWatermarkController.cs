@@ -140,7 +140,10 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
             settings.WatermarkTextEnable = model.WatermarkTextEnable;
             settings.WatermarkText = model.WatermarkText;
             settings.WatermarkFont = model.WatermarkFont;
-            settings.TextColor = ColorTranslator.FromHtml("#"+model.TextColor);
+            if (model.TextColor != null)
+            {
+                settings.TextColor = ColorTranslator.FromHtml("#" + model.TextColor);
+            }
             settings.TextRotatedDegree = model.TextRotatedDegree;
             if (model.TextSettings != null)
             {
