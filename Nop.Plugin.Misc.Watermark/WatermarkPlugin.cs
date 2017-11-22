@@ -4,9 +4,11 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Web.Routing;
+using Microsoft.AspNetCore.Hosting;
 using Nop.Core;
+using Nop.Core.Caching;
 using Nop.Core.Domain.Localization;
+using Nop.Core.Infrastructure;
 using Nop.Core.Plugins;
 using Nop.Services.Caching;
 using Nop.Services.Common;
@@ -23,29 +25,24 @@ namespace Nop.Plugin.Misc.Watermark
         private readonly ILocalizationService _localizationService;
         private readonly ILanguageService _languageService;
         private readonly ISettingService _settingService;
+        private readonly IWebHelper _webHelper;
         private readonly string _pluginLocalesPath = CommonHelper.MapPath("~/Plugins/Misc.Watermark/Resources");
         private readonly string _defaultWatermarkPicturePath =
             CommonHelper.MapPath("~/Plugins/Misc.Watermark/Content/defaultWatermarkPicture.png");
 
         public WatermarkPlugin(ISettingService settingService, IPictureService pictureService,
-            ILocalizationService localizationService, ILanguageService languageService)
+            ILocalizationService localizationService, ILanguageService languageService, IWebHelper webHelper)
         {
             _settingService = settingService;
             _pictureService = pictureService;
             _localizationService = localizationService;
             _languageService = languageService;
+            _webHelper = webHelper;
         }
 
-        public void GetConfigurationRoute(out string actionName, out string controllerName,
-            out RouteValueDictionary routeValues)
+        public override string GetConfigurationPageUrl()
         {
-            actionName = "Configure";
-            controllerName = "MiscWatermark";
-            routeValues = new RouteValueDictionary
-            {
-                {"Namespaces", "Nop.Plugin.Misc.Watermark.Controllers"},
-                {"area", null}
-            };
+            return _webHelper.GetStoreLocation() + "Admin/MiscWatermark/Configure";
         }
 
         public override void Install()
@@ -94,7 +91,8 @@ namespace Nop.Plugin.Misc.Watermark
             DeleteLocaleResources();
 
             _settingService.ClearCache();
-            new ClearCacheTask().Execute();
+
+            new ClearCacheTask(EngineContext.Current.Resolve<IStaticCacheManager>()).Execute();
             Utils.ClearThumbsDirectory();
 
             base.Uninstall();

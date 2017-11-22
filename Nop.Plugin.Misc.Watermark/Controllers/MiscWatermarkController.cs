@@ -3,30 +3,38 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Text;
 using System.Linq;
-using System.Web.Mvc;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
+using Nop.Core.Caching;
+using Nop.Core.Infrastructure;
 using Nop.Plugin.Misc.Watermark.Infrastructure;
 using Nop.Plugin.Misc.Watermark.Models;
 using Nop.Services.Caching;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
+using Nop.Services.Security;
 using Nop.Services.Stores;
+using Nop.Web.Areas.Admin.Controllers;
+using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
-using Nop.Web.Framework.Security;
 
 namespace Nop.Plugin.Misc.Watermark.Controllers
 {
-    [AdminAuthorize]
+    [Area(AreaNames.Admin)]
     public class MiscWatermarkController : BasePluginController
     {
         private readonly ILocalizationService _localizationService;
         private readonly ISettingService _settingService;
         private readonly IStoreService _storeService;
+        private readonly IPermissionService _permissionService;
         private readonly IWorkContext _workContext;
 
         public MiscWatermarkController(
             IWorkContext workContext,
             IStoreService storeService,
+            IPermissionService permissionService,
             ILocalizationService localizationService,
             ISettingService settingService)
         {
@@ -34,11 +42,14 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
             _storeService = storeService;
             _localizationService = localizationService;
             _settingService = settingService;
+            _permissionService = permissionService;
         }
 
-        [ChildActionOnly]
-        public ActionResult Configure()
+        public IActionResult Configure()
         {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManagePlugins))
+                return AccessDeniedView();
+
             List<string> availableFonts = GetAvailableFontNames();
 
             int activeStoreScope = GetActiveStoreScopeConfiguration(_storeService, _workContext);
@@ -124,10 +135,11 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
         }
 
         [HttpPost]
-        [ChildActionOnly]
-        [AdminAntiForgery]
-        public ActionResult Configure(ConfigurationModel model)
+        public IActionResult Configure(ConfigurationModel model)
         {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManagePlugins))
+                return AccessDeniedView();
+
             if (!ModelState.IsValid)
             {
                 return Configure();
@@ -197,7 +209,7 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
                 x => x.MinimumImageWidthForWatermark, model.WatermarkMinimumImageWidthForWatermark_OverrideForStore, activeStoreScope, false);
 
             //_settingService.ClearCache();
-            new ClearCacheTask().Execute();
+            new ClearCacheTask(EngineContext.Current.Resolve<IStaticCacheManager>()).Execute();
             Utils.ClearThumbsDirectory();
 
             SuccessNotification(_localizationService.GetResource("Admin.Plugins.Saved"));

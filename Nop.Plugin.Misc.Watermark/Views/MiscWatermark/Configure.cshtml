@@ -1,19 +1,14 @@
 ﻿@model Nop.Plugin.Misc.Watermark.Models.ConfigurationModel
-@using System.Web.UI.WebControls
-@using Nop.Web.Framework
-@using Nop.Web.Framework.UI
 @{
-    Layout = "";
-    Html.AddScriptParts("~/Plugins/Misc.Watermark/script/jscolor.js");
-    Html.AddScriptParts("~/Plugins/Misc.Watermark/script/jquery.knob.js");
+    Layout = "_ConfigurePlugin";
+
+    Html.AddScriptParts("~/Plugins/Misc.Watermark/Script/jscolor.js");
+    Html.AddScriptParts("~/Plugins/Misc.Watermark/Script/jquery.knob.js");
     Html.AppendCssFileParts("~/Plugins/Misc.Watermark/Content/watermark.css");
 }
 
-@Html.Action("StoreScopeConfiguration", "Setting", new { area = "Admin" })
-
-@using (@Html.BeginForm())
-{
-    @Html.AntiForgeryToken()
+@await Component.InvokeAsync("StoreScopeConfiguration")
+<form asp-controller="MiscWatermark" asp-action="Configure" method="post">
     <div class="panel-group clearfix">
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -22,52 +17,54 @@
             <div class="panel-body">
                 <div class="form-group col-md-12">
                     <div class="col-md-3">
-                        @Html.OverrideStoreCheckboxFor(model => model.WatermarkTextEnable_OverrideForStore, model => model.WatermarkTextEnable, Model.ActiveStoreScopeConfiguration)
-                        @Html.NopLabelFor(model => model.WatermarkTextEnable)
+                        <nop-override-store-checkbox asp-for="WatermarkTextEnable_OverrideForStore" asp-input="WatermarkTextEnable" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="WatermarkTextEnable"/>
                     </div>
                     <div class="col-md-9">
-                        @Html.NopEditorFor(model => model.WatermarkTextEnable)
+                        <nop-editor asp-for="WatermarkTextEnable"/>
                     </div>
                 </div>
                 <div class="form-group col-md-12">
                     <div class="col-md-3">
-                        @Html.OverrideStoreCheckboxFor(model => model.Text_OverrideForStore, model => model.WatermarkText, Model.ActiveStoreScopeConfiguration)
-                        @Html.NopLabelFor(model => model.WatermarkText)
+                        <nop-override-store-checkbox asp-for="Text_OverrideForStore" asp-input="WatermarkText" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="WatermarkText" />
                     </div>
                     <div class="col-md-9">
-                        @Html.NopEditorFor(model => model.WatermarkText)
-                        @Html.ValidationMessageFor(model => model.WatermarkText)
+                        <nop-editor asp-for="WatermarkText" />
+                        <span asp-validation-for="WatermarkText"></span>
                     </div>
                 </div>
                 <div class="form-group col-md-12">
                     <div class="col-md-3">
-                        @Html.OverrideStoreCheckboxFor(model => model.WatermarkFont_OverrideForStore, model => model.WatermarkFont, Model.ActiveStoreScopeConfiguration)
-                        @Html.NopLabelFor(model => model.WatermarkFont)
+                        <nop-override-store-checkbox asp-for="WatermarkFont_OverrideForStore" asp-input="WatermarkFont" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="WatermarkFont" />
                     </div>
                     <div class="col-md-9">
-                        @Html.NopDropDownListFor(model => model.WatermarkFont, Model.AvailableFontsList)
-                        @Html.ValidationMessageFor(model => model.WatermarkText)
+                        <nop-select asp-for="WatermarkFont" asp-items="Model.AvailableFontsList"/>
+                        <span asp-validation-for="WatermarkFont"></span>
                     </div>
                 </div>
                 <div class="form-group col-md-12">
                     <div class="col-md-3">
-                        @Html.OverrideStoreCheckboxFor(model => model.TextColor_OverrideForStore, model => model.TextColor, Model.ActiveStoreScopeConfiguration)
-                        @Html.NopLabelFor(model => model.TextColor)
+                        <nop-override-store-checkbox asp-for="TextColor_OverrideForStore" asp-input="TextColor" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="TextColor" />
                     </div>
                     <div class="col-md-9">
-                        @Html.TextBoxFor(model => model.TextColor, new { @class = "jscolor form-control" })
-                        @Html.ValidationMessageFor(model => model.TextColor)
+                        <input asp-for="TextColor" class="jscolor form-control"/>
+                        <span asp-validation-for="TextColor"></span>
                     </div>
                 </div>
-                <div class="col-md-12">@Html.OverrideStoreCheckboxFor(model => model.TextSettings_OverrideForStore, "textsettings_group", Model.ActiveStoreScopeConfiguration)</div>
+                <div class="col-md-12">
+                    <nop-override-store-checkbox asp-for="TextSettings_OverrideForStore" asp-parent-container="textsettings_group" asp-store-scope="@Model.ActiveStoreScopeConfiguration" /> 
+                </div>
                 <div id="textsettings_group">
                     <div class="form-group col-md-12">
                         <div class="col-md-3">
-                            @Html.NopLabelFor(model => model.TextSettings.Size)
+                            <nop-label asp-for="TextSettings.Size" />
                         </div>
                         <div class="col-md-9">
-                            @Html.NopEditorFor(model => model.TextSettings.Size)
-                            @Html.ValidationMessageFor(model => model.TextSettings.Size)
+                            <nop-editor asp-for="TextSettings.Size"/>
+                            <span asp-validation-for="TextSettings.Size"></span>
                         </div>
                     </div>
                     <div class="form-group col-md-12">
@@ -83,62 +80,30 @@
                                 <div class="col-md-4">
                                     <div class="col-md-12">
                                         <div class="col-md-9">
-                                            @Html.NopLabelFor(model => model.TextSettings.TopLeftCorner)
+                                            <nop-label asp-for="TextSettings.TopLeftCorner" />
                                         </div>
                                         <div class="col-md-3">
-                                            @Html.NopEditorFor(model => model.TextSettings.TopLeftCorner)
+                                            <nop-editor asp-for="TextSettings.TopLeftCorner" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="col-md-12">
                                         <div class="col-md-9">
-                                            @Html.NopLabelFor(model => model.TextSettings.TopCenter)
+                                            <nop-label asp-for="TextSettings.TopCenter" />
                                         </div>
                                         <div class="col-md-3">
-                                            @Html.NopEditorFor(model => model.TextSettings.TopCenter)
+                                            <nop-editor asp-for="TextSettings.TopCenter" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="col-md-12">
                                         <div class="col-md-9">
-                                            @Html.NopLabelFor(model => model.TextSettings.TopRightCorner)
+                                            <nop-label asp-for="TextSettings.TopRightCorner" />
                                         </div>
                                         <div class="col-md-3">
-                                            @Html.NopEditorFor(model => model.TextSettings.TopRightCorner)
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            @Html.NopLabelFor(model => model.TextSettings.CenterLeft)
-                                        </div>
-                                        <div class="col-md-3">
-                                            @Html.NopEditorFor(model => model.TextSettings.CenterLeft)
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            @Html.NopLabelFor(model => model.TextSettings.Center)
-                                        </div>
-                                        <div class="col-md-3">
-                                            @Html.NopEditorFor(model => model.TextSettings.Center)
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            @Html.NopLabelFor(model => model.TextSettings.CenterRight)
-                                        </div>
-                                        <div class="col-md-3">
-                                            @Html.NopEditorFor(model => model.TextSettings.CenterRight)
+                                            <nop-editor asp-for="TextSettings.TopRightCorner" />
                                         </div>
                                     </div>
                                 </div>
@@ -147,30 +112,62 @@
                                 <div class="col-md-4">
                                     <div class="col-md-12">
                                         <div class="col-md-9">
-                                            @Html.NopLabelFor(model => model.TextSettings.BottomLeftCorner)
+                                            <nop-label asp-for="TextSettings.CenterLeft" />
                                         </div>
                                         <div class="col-md-3">
-                                            @Html.NopEditorFor(model => model.TextSettings.BottomLeftCorner)
+                                            <nop-editor asp-for="TextSettings.CenterLeft" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="col-md-12">
                                         <div class="col-md-9">
-                                            @Html.NopLabelFor(model => model.TextSettings.BottomCenter)
+                                            <nop-label asp-for="TextSettings.Center" />
                                         </div>
                                         <div class="col-md-3">
-                                            @Html.NopEditorFor(model => model.TextSettings.BottomCenter)
+                                            <nop-editor asp-for="TextSettings.Center" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="col-md-12">
                                         <div class="col-md-9">
-                                            @Html.NopLabelFor(model => model.TextSettings.BottomRightCorner)
+                                            <nop-label asp-for="TextSettings.CenterRight" />
                                         </div>
                                         <div class="col-md-3">
-                                            @Html.NopEditorFor(model => model.TextSettings.BottomRightCorner)
+                                            <nop-editor asp-for="TextSettings.CenterRight" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-4">
+                                    <div class="col-md-12">
+                                        <div class="col-md-9">
+                                            <nop-label asp-for="TextSettings.BottomLeftCorner" />
+                                        </div>
+                                        <div class="col-md-3">
+                                            <nop-editor asp-for="TextSettings.BottomLeftCorner" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="col-md-12">
+                                        <div class="col-md-9">
+                                            <nop-label asp-for="TextSettings.BottomCenter" />
+                                        </div>
+                                        <div class="col-md-3">
+                                            <nop-editor asp-for="TextSettings.BottomCenter" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="col-md-12">
+                                        <div class="col-md-9">
+                                            <nop-label asp-for="TextSettings.BottomRightCorner" />
+                                        </div>
+                                        <div class="col-md-3">
+                                            <nop-editor asp-for="TextSettings.BottomRightCorner" />
                                         </div>
                                     </div>
                                 </div>
@@ -179,22 +176,22 @@
                     </div>
                     <div class="form-group col-md-12">
                         <div class="col-md-3">
-                            @Html.NopLabelFor(model => model.TextSettings.Opacity)
+                            <nop-label asp-for="TextSettings.Opacity" />
                         </div>
                         <div class="col-md-9">
-                            @Html.NopEditorFor(model => model.TextSettings.Opacity)
-                            @Html.ValidationMessageFor(model => model.TextSettings.Opacity)
+                            <nop-editor asp-for="TextSettings.Opacity" />
+                            <span asp-validation-for="TextSettings.Opacity"></span>
                         </div>
                     </div>
                 </div>
                 <div class="form-group col-md-12">
                     <div class="col-md-3">
-                        @Html.OverrideStoreCheckboxFor(model => model.WatermarkTextRotatedDegree_OverrideForStore, model => model.TextRotatedDegree, Model.ActiveStoreScopeConfiguration)
-                        @Html.NopLabelFor(model => model.TextRotatedDegree)
+                        <nop-override-store-checkbox asp-for="WatermarkTextRotatedDegree_OverrideForStore" asp-input="TextRotatedDegree" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="TextRotatedDegree" />
                     </div>
                     <div class="col-md-9">
-                        @Html.TextBoxFor(model => model.TextRotatedDegree, new { @class = "dial" })
-                        @Html.ValidationMessageFor(model => model.TextRotatedDegree)
+                        <input asp-for="TextRotatedDegree" class="dial"/>
+                        <span asp-validation-for="TextRotatedDegree"></span>
                         <script>
                             $(function () {
                                 $('.dial').knob({
@@ -216,32 +213,35 @@
             <div class="panel-body">
                 <div class="form-group col-md-12">
                     <div class="col-md-3">
-                        @Html.OverrideStoreCheckboxFor(model => model.WatermarkPictureEnable_OverrideForStore, model => model.WatermarkPictureEnable, Model.ActiveStoreScopeConfiguration)
-                        @Html.NopLabelFor(model => model.WatermarkPictureEnable)
+                        <nop-override-store-checkbox asp-for="WatermarkPictureEnable_OverrideForStore" asp-input="WatermarkPictureEnable" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="WatermarkPictureEnable" />
                     </div>
                     <div class="col-md-9 watermark-picture">
-                        @Html.NopEditorFor(model => model.WatermarkPictureEnable)
+                        <nop-editor asp-for="WatermarkPictureEnable" />
                     </div>
                 </div>
                 <div class="form-group col-md-12">
                     <div class="col-md-3">
-                        @Html.OverrideStoreCheckboxFor(model => model.WatermarkPictureId_OverrideForStore, model => model.PictureId, Model.ActiveStoreScopeConfiguration)
-                        @Html.NopLabelFor(model => model.PictureId)
+                        <nop-override-store-checkbox asp-for="WatermarkPictureId_OverrideForStore" asp-input="PictureId" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="PictureId" />
                     </div>
                     <div class="col-md-9 watermark-picture">
-                        @Html.NopEditorFor(model => model.PictureId)
+                        <nop-editor asp-for="PictureId" />
+                        <span asp-validation-for="PictureId"></span>
                     </div>
                 </div>
 
-                <div class="col-md-12">@Html.OverrideStoreCheckboxFor(model => model.PictureSettings_OverrideForStore, "picturesettings_group", Model.ActiveStoreScopeConfiguration)</div>
+                <div class="col-md-12">
+                    <nop-override-store-checkbox asp-for="PictureSettings_OverrideForStore" asp-parent-container="picturesettings_group" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                </div>
                 <div id="picturesettings_group">
                     <div class="form-group col-md-12">
                         <div class="col-md-3">
-                            @Html.NopLabelFor(model => model.PictureSettings.Size)
+                            <nop-label asp-for="PictureSettings.Size" />
                         </div>
                         <div class="col-md-9">
-                            @Html.NopEditorFor(model => model.PictureSettings.Size)
-                            @Html.ValidationMessageFor(model => model.PictureSettings.Size)
+                            <nop-editor asp-for="PictureSettings.Size" />
+                            <span asp-validation-for="PictureSettings.Size"></span>
                         </div>
                     </div>
                     <div class="form-group col-md-12">
@@ -257,62 +257,30 @@
                                 <div class="col-md-4">
                                     <div class="col-md-12">
                                         <div class="col-md-9">
-                                            @Html.NopLabelFor(model => model.PictureSettings.TopLeftCorner)
+                                            <nop-label asp-for="PictureSettings.TopLeftCorner" />
                                         </div>
                                         <div class="col-md-3">
-                                            @Html.NopEditorFor(model => model.PictureSettings.TopLeftCorner)
+                                            <nop-editor asp-for="PictureSettings.TopLeftCorner" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="col-md-12">
                                         <div class="col-md-9">
-                                            @Html.NopLabelFor(model => model.PictureSettings.TopCenter)
+                                            <nop-label asp-for="PictureSettings.TopCenter" />
                                         </div>
                                         <div class="col-md-3">
-                                            @Html.NopEditorFor(model => model.PictureSettings.TopCenter)
+                                            <nop-editor asp-for="PictureSettings.TopCenter" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="col-md-12">
                                         <div class="col-md-9">
-                                            @Html.NopLabelFor(model => model.PictureSettings.TopRightCorner)
+                                            <nop-label asp-for="PictureSettings.TopRightCorner" />
                                         </div>
                                         <div class="col-md-3">
-                                            @Html.NopEditorFor(model => model.PictureSettings.TopRightCorner)
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            @Html.NopLabelFor(model => model.PictureSettings.CenterLeft)
-                                        </div>
-                                        <div class="col-md-3">
-                                            @Html.NopEditorFor(model => model.PictureSettings.CenterLeft)
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            @Html.NopLabelFor(model => model.PictureSettings.Center)
-                                        </div>
-                                        <div class="col-md-3">
-                                            @Html.NopEditorFor(model => model.PictureSettings.Center)
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            @Html.NopLabelFor(model => model.PictureSettings.CenterRight)
-                                        </div>
-                                        <div class="col-md-3">
-                                            @Html.NopEditorFor(model => model.PictureSettings.CenterRight)
+                                            <nop-editor asp-for="PictureSettings.TopRightCorner" />
                                         </div>
                                     </div>
                                 </div>
@@ -321,30 +289,62 @@
                                 <div class="col-md-4">
                                     <div class="col-md-12">
                                         <div class="col-md-9">
-                                            @Html.NopLabelFor(model => model.PictureSettings.BottomLeftCorner)
+                                            <nop-label asp-for="PictureSettings.CenterLeft" />
                                         </div>
                                         <div class="col-md-3">
-                                            @Html.NopEditorFor(model => model.PictureSettings.BottomLeftCorner)
+                                            <nop-editor asp-for="PictureSettings.CenterLeft" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="col-md-12">
                                         <div class="col-md-9">
-                                            @Html.NopLabelFor(model => model.PictureSettings.BottomCenter)
+                                            <nop-label asp-for="PictureSettings.Center" />
                                         </div>
                                         <div class="col-md-3">
-                                            @Html.NopEditorFor(model => model.PictureSettings.BottomCenter)
+                                            <nop-editor asp-for="PictureSettings.Center" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="col-md-12">
                                         <div class="col-md-9">
-                                            @Html.NopLabelFor(model => model.PictureSettings.BottomRightCorner)
+                                            <nop-label asp-for="PictureSettings.CenterRight" />
                                         </div>
                                         <div class="col-md-3">
-                                            @Html.NopEditorFor(model => model.PictureSettings.BottomRightCorner)
+                                            <nop-editor asp-for="PictureSettings.CenterRight" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-4">
+                                    <div class="col-md-12">
+                                        <div class="col-md-9">
+                                            <nop-label asp-for="PictureSettings.BottomLeftCorner" />
+                                        </div>
+                                        <div class="col-md-3">
+                                            <nop-editor asp-for="PictureSettings.BottomLeftCorner" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="col-md-12">
+                                        <div class="col-md-9">
+                                            <nop-label asp-for="PictureSettings.BottomCenter" />
+                                        </div>
+                                        <div class="col-md-3">
+                                            <nop-editor asp-for="PictureSettings.BottomCenter" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="col-md-12">
+                                        <div class="col-md-9">
+                                            <nop-label asp-for="PictureSettings.BottomRightCorner" />
+                                        </div>
+                                        <div class="col-md-3">
+                                            <nop-editor asp-for="PictureSettings.BottomRightCorner" />
                                         </div>
                                     </div>
                                 </div>
@@ -353,11 +353,11 @@
                     </div>
                     <div class="form-group col-md-12">
                         <div class="col-md-3">
-                            @Html.NopLabelFor(model => model.PictureSettings.Opacity)
+                            <nop-label asp-for="PictureSettings.Opacity" />
                         </div>
                         <div class="col-md-9">
-                            @Html.NopEditorFor(model => model.PictureSettings.Opacity)
-                            @Html.ValidationMessageFor(model => model.PictureSettings.Opacity)
+                            <nop-editor asp-for="PictureSettings.Opacity" />
+                            <span asp-validation-for="PictureSettings.Opacity"></span>
                         </div>
                     </div>
                 </div>
@@ -370,49 +370,49 @@
             <div class="panel-body">
                 <div class="form-group col-md-12">
                     <div class="col-md-3">
-                        @Html.OverrideStoreCheckboxFor(model => model.ApplyOnProductPictures_OverrideForStore, model => model.ApplyOnProductPictures, Model.ActiveStoreScopeConfiguration)
-                        @Html.NopLabelFor(model => model.ApplyOnProductPictures)
+                        <nop-override-store-checkbox asp-for="ApplyOnProductPictures_OverrideForStore" asp-input="ApplyOnProductPictures" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="ApplyOnProductPictures" />
                     </div>
                     <div class="col-md-9">
-                        @Html.NopEditorFor(model => model.ApplyOnProductPictures)
+                        <nop-editor asp-for="ApplyOnProductPictures" />
                     </div>
                 </div>
                 <div class="form-group col-md-12">
                     <div class="col-md-3">
-                        @Html.OverrideStoreCheckboxFor(model => model.ApplyOnCategoryPictures_OverrideForStore, model => model.ApplyOnCategoryPictures, Model.ActiveStoreScopeConfiguration)
-                        @Html.NopLabelFor(model => model.ApplyOnCategoryPictures)
+                        <nop-override-store-checkbox asp-for="ApplyOnCategoryPictures_OverrideForStore" asp-input="ApplyOnCategoryPictures" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="ApplyOnCategoryPictures" />
                     </div>
                     <div class="col-md-9">
-                        @Html.NopEditorFor(model => model.ApplyOnCategoryPictures)
+                        <nop-editor asp-for="ApplyOnCategoryPictures" />
                     </div>
                 </div>
                 <div class="form-group col-md-12">
                     <div class="col-md-3">
-                        @Html.OverrideStoreCheckboxFor(model => model.ApplyOnManufacturerPictures_OverrideForStore, model => model.ApplyOnManufacturerPictures, Model.ActiveStoreScopeConfiguration)
-                        @Html.NopLabelFor(model => model.ApplyOnManufacturerPictures)
+                        <nop-override-store-checkbox asp-for="ApplyOnManufacturerPictures_OverrideForStore" asp-input="ApplyOnManufacturerPictures" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="ApplyOnManufacturerPictures" />
                     </div>
                     <div class="col-md-9">
-                        @Html.NopEditorFor(model => model.ApplyOnManufacturerPictures)
+                        <nop-editor asp-for="ApplyOnManufacturerPictures" />
                     </div>
                 </div>
                 <div class="form-group col-md-12">
                     <div class="col-md-3">
-                        @Html.OverrideStoreCheckboxFor(model => model.WatermarkMinimumImageWidthForWatermark_OverrideForStore, model => model.MinimumImageWidthForWatermark, Model.ActiveStoreScopeConfiguration)
-                        @Html.NopLabelFor(model => model.MinimumImageWidthForWatermark)
+                        <nop-override-store-checkbox asp-for="WatermarkMinimumImageWidthForWatermark_OverrideForStore" asp-input="MinimumImageWidthForWatermark" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="MinimumImageWidthForWatermark" />
                     </div>
                     <div class="col-md-9">
-                        @Html.NopEditorFor(model => model.MinimumImageWidthForWatermark)
-                        @Html.ValidationMessageFor(model => model.MinimumImageWidthForWatermark)
+                        <nop-editor asp-for="MinimumImageWidthForWatermark" />
+                        <span asp-validation-for="MinimumImageWidthForWatermark"></span>
                     </div>
                 </div>
                 <div class="form-group col-md-12">
                     <div class="col-md-3">
-                        @Html.OverrideStoreCheckboxFor(model => model.WatermarkMinimumImageHeightForWatermark_OverrideForStore, model => model.MinimumImageHeightForWatermark, Model.ActiveStoreScopeConfiguration)
-                        @Html.NopLabelFor(model => model.MinimumImageHeightForWatermark)
+                        <nop-override-store-checkbox asp-for="WatermarkMinimumImageHeightForWatermark_OverrideForStore" asp-input="MinimumImageHeightForWatermark" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="MinimumImageHeightForWatermark" />
                     </div>
                     <div class="col-md-9">
-                        @Html.NopEditorFor(model => model.MinimumImageHeightForWatermark)
-                        @Html.ValidationMessageFor(model => model.MinimumImageHeightForWatermark)
+                        <nop-editor asp-for="MinimumImageHeightForWatermark" />
+                        <span asp-validation-for="MinimumImageHeightForWatermark"></span>
                     </div>
                 </div>
             </div>
@@ -422,4 +422,4 @@
             </div>
         </div>
     </div>
-}
+</form>

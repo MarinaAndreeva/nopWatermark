@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using ImageResizer;
+using Microsoft.AspNetCore.Hosting;
 using Nop.Core;
 using Nop.Core.Data;
 using Nop.Core.Domain.Catalog;
@@ -50,7 +51,8 @@ namespace Nop.Plugin.Misc.Watermark.Services
             MediaSettings mediaSettings,
             IDataProvider dataProvider,
             IStoreContext storeContext,
-            IPluginFinder pluginFinder)
+            IPluginFinder pluginFinder,
+            IHostingEnvironment hostingEnvironment)
             : base(pictureRepository,
                 productPictureRepository,
                 settingService,
@@ -59,7 +61,8 @@ namespace Nop.Plugin.Misc.Watermark.Services
                 dbContext,
                 eventPublisher,
                 mediaSettings,
-                dataProvider)
+                dataProvider,
+                hostingEnvironment)
         {
             _categoryRepository = categoryRepository;
             _manufacturerRepository = manufacturerRepository;
@@ -138,15 +141,15 @@ namespace Nop.Plugin.Misc.Watermark.Services
             {
                 if (targetSize == 0)
                 {
-                    thumbFileName = !String.IsNullOrEmpty(seoFileName)
-                        ? string.Format("{0}_{1}.{2}", picture.Id.ToString("0000000"), seoFileName, lastPart)
-                        : string.Format("{0}.{1}", picture.Id.ToString("0000000"), lastPart);
+                    thumbFileName = !string.IsNullOrEmpty(seoFileName)
+                        ? $"{picture.Id:0000000}_{seoFileName}.{lastPart}"
+                        : $"{picture.Id:0000000}.{lastPart}";
                 }
                 else
                 {
-                    thumbFileName = !String.IsNullOrEmpty(seoFileName)
-                        ? string.Format("{0}_{1}_{2}.{3}", picture.Id.ToString("0000000"), seoFileName, targetSize, lastPart)
-                        : string.Format("{0}_{1}.{2}", picture.Id.ToString("0000000"), targetSize, lastPart);
+                    thumbFileName = !string.IsNullOrEmpty(seoFileName)
+                        ? $"{picture.Id:0000000}_{seoFileName}_{targetSize}.{lastPart}"
+                        : $"{picture.Id:0000000}_{targetSize}.{lastPart}";
                 }
             }
             else
@@ -154,15 +157,14 @@ namespace Nop.Plugin.Misc.Watermark.Services
                 if (targetSize == 0)
                 {
                     thumbFileName = !String.IsNullOrEmpty(seoFileName)
-                        ? string.Format("{0}_{1}_{2}.{3}", picture.Id.ToString("0000000"), seoFileName, storeId, lastPart)
-                        : string.Format("{0}_{1}.{2}", picture.Id.ToString("0000000"), storeId, lastPart);
+                        ? $"{picture.Id:0000000}_{seoFileName}_{storeId}.{lastPart}"
+                        : $"{picture.Id:0000000}_{storeId}.{lastPart}";
                 }
                 else
                 {
                     thumbFileName = !String.IsNullOrEmpty(seoFileName)
-                        ? string.Format("{0}_{1}_{2}_{3}.{4}", picture.Id.ToString("0000000"), seoFileName, targetSize, storeId,
-                            lastPart)
-                        : string.Format("{0}_{1}_{2}.{3}", picture.Id.ToString("0000000"), targetSize, storeId, lastPart);
+                        ? $"{picture.Id:0000000}_{seoFileName}_{targetSize}_{storeId}.{lastPart}"
+                        : $"{picture.Id:0000000}_{targetSize}_{storeId}.{lastPart}";
                 }
             }
             

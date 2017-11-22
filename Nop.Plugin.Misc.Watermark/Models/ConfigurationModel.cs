@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using Nop.Web.Framework;
-using Nop.Web.Framework.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Web.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using FluentValidation.Attributes;
 using Nop.Plugin.Misc.Watermark.Infrastructure;
+using Nop.Web.Framework.Mvc.ModelBinding;
+using Nop.Web.Framework.Mvc.Models;
 
 namespace Nop.Plugin.Misc.Watermark.Models
 {
@@ -16,7 +16,6 @@ namespace Nop.Plugin.Misc.Watermark.Models
 
         #region Watermark Text
 
-        [AllowHtml]
         [NopResourceDisplayName("Plugins.Misc.Watermark.WatermarkTextEnable")]
         public bool WatermarkTextEnable { get; set; }
         public bool WatermarkTextEnable_OverrideForStore { get; set; }

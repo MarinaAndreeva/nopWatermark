@@ -2,7 +2,10 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using Microsoft.AspNetCore.Hosting;
 using Nop.Core;
+using Nop.Core.Caching;
+using Nop.Core.Infrastructure;
 
 namespace Nop.Plugin.Misc.Watermark.Infrastructure
 {
@@ -10,7 +13,8 @@ namespace Nop.Plugin.Misc.Watermark.Infrastructure
     {
         public static void ClearThumbsDirectory()
         {
-            string defaultThumbsPath = CommonHelper.MapPath("~/content/images/thumbs");
+            string defaultThumbsPath = Path.Combine(EngineContext.Current.Resolve<IHostingEnvironment>().
+                WebRootPath, "images\\thumbs");
             var imageDirectoryInfo = new DirectoryInfo(defaultThumbsPath);
             foreach (var fileInfo in imageDirectoryInfo.GetFiles())
                 fileInfo.Delete();
