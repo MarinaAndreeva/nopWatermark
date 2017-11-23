@@ -231,7 +231,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
                             }
                         }
 
-                        SaveThumb(thumbFilePath, thumbFileName, picture.MimeType, pictureBinaryResized);
+                        SaveThumb(thumbFilePath, thumbFileName, pictureBinaryResized);
                     }
 
                     mutex.ReleaseMutex();

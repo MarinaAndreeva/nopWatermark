@@ -10,3 +10,7 @@
 .button-align-center {
     text-align: center !important;
 }
+
+.k-widget.k-numerictextbox {
+    width: 100% !important;
+}
