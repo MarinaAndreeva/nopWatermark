@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 <PropertyGroup>
 <TargetFramework>net461</TargetFramework>
-<Version>1.0.2</Version>
+<Version>1.0.3</Version>
 <Copyright>Copyright © Marina Andreeva 2017</Copyright>
 <Company>Marina Andreeva</Company>
 <Authors>Marina Andreeva</Authors>
 </PropertyGroup>
 <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
-<OutputPath>$(SolutionDir)\Presentation\Nop.Web\Plugins\Misc.Watermark\</OutputPath>
+<OutputPath>..\..\..\Presentation\Nop.Web\Plugins\Misc.Watermark</OutputPath>
 <OutDir>$(OutputPath)</OutDir>
 </PropertyGroup>
 <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

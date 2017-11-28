@@ -404,7 +404,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
         
         private static Bitmap CreateBitmap(Image sourceImage)
         {
-            Bitmap destBitmap = new Bitmap(sourceImage.Width, sourceImage.Height, PixelFormat.Format24bppRgb);
+            Bitmap destBitmap = new Bitmap(sourceImage.Width, sourceImage.Height, PixelFormat.Format32bppArgb);
             destBitmap.SetResolution(sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
             using (Graphics g = Graphics.FromImage(destBitmap))
             {
