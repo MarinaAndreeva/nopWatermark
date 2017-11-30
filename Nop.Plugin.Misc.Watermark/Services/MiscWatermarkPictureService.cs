@@ -48,7 +48,6 @@ namespace Nop.Plugin.Misc.Watermark.Services
             IDbContext dbContext,
             IEventPublisher eventPublisher,
             MediaSettings mediaSettings,
-            IDataProvider dataProvider,
             IStoreContext storeContext,
             IPluginFinder pluginFinder)
             : base(pictureRepository,
@@ -58,8 +57,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
                 logger,
                 dbContext,
                 eventPublisher,
-                mediaSettings,
-                dataProvider)
+                mediaSettings)
         {
             _categoryRepository = categoryRepository;
             _manufacturerRepository = manufacturerRepository;

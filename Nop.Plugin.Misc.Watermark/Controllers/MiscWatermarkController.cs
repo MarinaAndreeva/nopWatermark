@@ -167,34 +167,131 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
             settings.MinimumImageHeightForWatermark = model.MinimumImageHeightForWatermark;
             settings.MinimumImageWidthForWatermark = model.MinimumImageHeightForWatermark;
 
-            _settingService.SaveSettingOverridablePerStore(settings,
-                x => x.WatermarkTextEnable, model.WatermarkTextEnable_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
-                x => x.WatermarkText, model.Text_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
-                x => x.WatermarkFont, model.WatermarkFont_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
-                x => x.TextColor, model.TextColor_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
-                x => x.TextRotatedDegree, model.WatermarkTextRotatedDegree_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
-                x => x.TextSettings, model.TextSettings_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
-                x => x.WatermarkPictureEnable, model.WatermarkPictureEnable_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
-                x => x.PictureId, model.WatermarkPictureId_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
-                x => x.PictureSettings, model.PictureSettings_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
-                x => x.ApplyOnProductPictures, model.ApplyOnProductPictures_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
-                x => x.ApplyOnCategoryPictures, model.ApplyOnCategoryPictures_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
-                x => x.ApplyOnManufacturerPictures, model.ApplyOnManufacturerPictures_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
-                x => x.MinimumImageHeightForWatermark, model.WatermarkMinimumImageHeightForWatermark_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
-                x => x.MinimumImageWidthForWatermark, model.WatermarkMinimumImageWidthForWatermark_OverrideForStore, activeStoreScope, false);
+            if (model.WatermarkTextEnable_OverrideForStore || activeStoreScope == 0)
+            {
+                _settingService.SaveSetting(settings, x => x.WatermarkTextEnable, activeStoreScope, false);
+            }
+            else
+            {
+                _settingService.DeleteSetting(settings, x => x.WatermarkTextEnable, activeStoreScope);
+            }
+
+            if (model.Text_OverrideForStore || activeStoreScope == 0)
+            {
+                _settingService.SaveSetting(settings, x => x.WatermarkText, activeStoreScope, false);
+            }
+            else
+            {
+                _settingService.DeleteSetting(settings, x => x.WatermarkText, activeStoreScope);
+            }
+
+            if (model.WatermarkFont_OverrideForStore || activeStoreScope == 0)
+            {
+                _settingService.SaveSetting(settings, x => x.WatermarkFont, activeStoreScope, false);
+            }
+            else
+            {
+                _settingService.DeleteSetting(settings, x => x.WatermarkFont, activeStoreScope);
+            }
+
+            if (model.TextColor_OverrideForStore || activeStoreScope == 0)
+            {
+                _settingService.SaveSetting(settings, x => x.TextColor, activeStoreScope, false);
+            }
+            else
+            {
+                _settingService.DeleteSetting(settings, x => x.TextColor, activeStoreScope);
+            }
+
+            if (model.WatermarkTextRotatedDegree_OverrideForStore || activeStoreScope == 0)
+            {
+                _settingService.SaveSetting(settings, x => x.TextRotatedDegree, activeStoreScope, false);
+            }
+            else
+            {
+                _settingService.DeleteSetting(settings, x => x.TextRotatedDegree, activeStoreScope);
+            }
+
+            if (model.TextSettings_OverrideForStore || activeStoreScope == 0)
+            {
+                _settingService.SaveSetting(settings, x => x.TextSettings, activeStoreScope, false);
+            }
+            else
+            {
+                _settingService.DeleteSetting(settings, x => x.TextSettings, activeStoreScope);
+            }
+
+            if (model.WatermarkPictureEnable_OverrideForStore || activeStoreScope == 0)
+            {
+                _settingService.SaveSetting(settings, x => x.WatermarkPictureEnable, activeStoreScope, false);
+            }
+            else
+            {
+                _settingService.DeleteSetting(settings, x => x.WatermarkPictureEnable, activeStoreScope);
+            }
+
+            if (model.WatermarkPictureId_OverrideForStore || activeStoreScope == 0)
+            {
+                _settingService.SaveSetting(settings, x => x.PictureId, activeStoreScope, false);
+            }
+            else
+            {
+                _settingService.DeleteSetting(settings, x => x.PictureId, activeStoreScope);
+            }
+
+            if (model.PictureSettings_OverrideForStore || activeStoreScope == 0)
+            {
+                _settingService.SaveSetting(settings, x => x.PictureSettings, activeStoreScope, false);
+            }
+            else
+            {
+                _settingService.DeleteSetting(settings, x => x.PictureSettings, activeStoreScope);
+            }
+
+            if (model.ApplyOnProductPictures_OverrideForStore || activeStoreScope == 0)
+            {
+                _settingService.SaveSetting(settings, x => x.ApplyOnProductPictures, activeStoreScope, false);
+            }
+            else
+            {
+                _settingService.DeleteSetting(settings, x => x.ApplyOnProductPictures, activeStoreScope);
+            }
+
+            if (model.ApplyOnCategoryPictures_OverrideForStore || activeStoreScope == 0)
+            {
+                _settingService.SaveSetting(settings, x => x.ApplyOnCategoryPictures, activeStoreScope, false);
+            }
+            else
+            {
+                _settingService.DeleteSetting(settings, x => x.ApplyOnCategoryPictures, activeStoreScope);
+            }
+
+            if (model.ApplyOnManufacturerPictures_OverrideForStore || activeStoreScope == 0)
+            {
+                _settingService.SaveSetting(settings, x => x.ApplyOnManufacturerPictures, activeStoreScope, false);
+            }
+            else
+            {
+                _settingService.DeleteSetting(settings, x => x.ApplyOnManufacturerPictures, activeStoreScope);
+            }
+
+            if (model.WatermarkMinimumImageHeightForWatermark_OverrideForStore || activeStoreScope == 0)
+            {
+                _settingService.SaveSetting(settings, x => x.MinimumImageHeightForWatermark, activeStoreScope, false);
+            }
+            else
+            {
+                _settingService.DeleteSetting(settings, x => x.MinimumImageHeightForWatermark, activeStoreScope);
+            }
+
+            if (model.WatermarkMinimumImageWidthForWatermark_OverrideForStore || activeStoreScope == 0)
+            {
+                _settingService.SaveSetting(settings, x => x.MinimumImageWidthForWatermark, activeStoreScope, false);
+            }
+            else
+            {
+                _settingService.DeleteSetting(settings, x => x.MinimumImageWidthForWatermark, activeStoreScope);
+            }
 
             //_settingService.ClearCache();
             new ClearCacheTask().Execute();

@@ -2,7 +2,7 @@
 FriendlyName: Image Watermark
 SystemName: Misc.Watermark
 Version: 1.0.3
-SupportedVersions: 3.80
+SupportedVersions: 3.70
 Author: Marina Andreieva
 DisplayOrder: 1
 FileName: Nop.Plugin.Misc.Watermark.dll

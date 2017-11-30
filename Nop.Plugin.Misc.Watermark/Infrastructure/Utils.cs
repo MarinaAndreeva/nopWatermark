@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using Nop.Core;
+using Nop.Core.Infrastructure;
 
 namespace Nop.Plugin.Misc.Watermark.Infrastructure
 {
@@ -10,7 +11,7 @@ namespace Nop.Plugin.Misc.Watermark.Infrastructure
     {
         public static void ClearThumbsDirectory()
         {
-            string defaultThumbsPath = CommonHelper.MapPath("~/content/images/thumbs");
+            string defaultThumbsPath = EngineContext.Current.Resolve<IWebHelper>().MapPath("~/content/images/thumbs");
             var imageDirectoryInfo = new DirectoryInfo(defaultThumbsPath);
             foreach (var fileInfo in imageDirectoryInfo.GetFiles())
                 fileInfo.Delete();

@@ -23,17 +23,16 @@ namespace Nop.Plugin.Misc.Watermark
         private readonly ILocalizationService _localizationService;
         private readonly ILanguageService _languageService;
         private readonly ISettingService _settingService;
-        private readonly string _pluginLocalesPath = CommonHelper.MapPath("~/Plugins/Misc.Watermark/Resources");
-        private readonly string _defaultWatermarkPicturePath =
-            CommonHelper.MapPath("~/Plugins/Misc.Watermark/Content/defaultWatermarkPicture.png");
+        private readonly IWebHelper _webHelper;
 
         public WatermarkPlugin(ISettingService settingService, IPictureService pictureService,
-            ILocalizationService localizationService, ILanguageService languageService)
+            ILocalizationService localizationService, ILanguageService languageService, IWebHelper webHelper)
         {
             _settingService = settingService;
             _pictureService = pictureService;
             _localizationService = localizationService;
             _languageService = languageService;
+            _webHelper = webHelper;
         }
 
         public void GetConfigurationRoute(out string actionName, out string controllerName,
@@ -50,7 +49,8 @@ namespace Nop.Plugin.Misc.Watermark
 
         public override void Install()
         {
-            string defaultWatermarkPictureMapPath = _defaultWatermarkPicturePath;
+            string defaultWatermarkPictureMapPath = _webHelper
+                .MapPath("~/Plugins/Misc.Watermark/Content/defaultWatermarkPicture.png");
             WatermarkSettings settings = new WatermarkSettings
             {
                 WatermarkTextEnable = false,
@@ -102,7 +102,7 @@ namespace Nop.Plugin.Misc.Watermark
 
         private void LoadLocaleResources()
         {
-            DirectoryInfo localesDirectory = new DirectoryInfo(_pluginLocalesPath);
+            DirectoryInfo localesDirectory = new DirectoryInfo(_webHelper.MapPath("~/Plugins/Misc.Watermark/Resources"));
 
             FileInfo defaultLocaleFile = localesDirectory.GetFiles("Locale.default.xml").FirstOrDefault();
             if (defaultLocaleFile != null)
