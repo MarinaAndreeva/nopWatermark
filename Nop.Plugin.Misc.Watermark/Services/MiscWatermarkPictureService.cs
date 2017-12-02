@@ -203,30 +203,30 @@ namespace Nop.Plugin.Misc.Watermark.Services
                                     //bitmap could not be loaded for some reasons
                                     return url;
                                 }
-
-                                using (var destStream = new MemoryStream())
+                                
+                                var newSize = CalculateDimensions(b.Size, targetSize);
+                                ImageFormat sourceImageFormat = b.RawFormat;
+                                Bitmap resizedBitmap = ImageBuilder.Current.Build(b, new ResizeSettings
                                 {
-                                    var newSize = CalculateDimensions(b.Size, targetSize);
-                                    ImageBuilder.Current.Build(b, destStream, new ResizeSettings
-                                    {
-                                        Width = newSize.Width,
-                                        Height = newSize.Height,
-                                        Scale = ScaleMode.Both,
-                                        Quality = _mediaSettings.DefaultImageQuality
-                                    });
-                                    Image image = MakeImageWatermark(Image.FromStream(destStream), picture.Id);
-                                    pictureBinaryResized = Utils.ConvertImageToByteArray(image, Utils.GetImageFormat(lastPart));
-                                    b.Dispose();
-                                    image.Dispose();
-                                }
+                                    Width = newSize.Width,
+                                    Height = newSize.Height,
+                                    Scale = ScaleMode.Both
+                                });
+                                Image image = MakeImageWatermark(resizedBitmap, picture.Id);
+                                pictureBinaryResized = Utils.ConvertImageToByteArray(image, sourceImageFormat, _mediaSettings.DefaultImageQuality);
+                                b.Dispose();
+                                resizedBitmap.Dispose();
+                                image.Dispose();
                             }
                         }
                         else
                         {
                             using (var stream = new MemoryStream(pictureBinary))
                             {
-                                Image image = MakeImageWatermark(Image.FromStream(stream), picture.Id);
-                                pictureBinaryResized = Utils.ConvertImageToByteArray(image, Utils.GetImageFormat(lastPart));
+                                Image sourceImage = Image.FromStream(stream);
+                                ImageFormat sourceImageFormat = sourceImage.RawFormat;
+                                Image image = MakeImageWatermark(sourceImage, picture.Id);
+                                pictureBinaryResized = Utils.ConvertImageToByteArray(image, sourceImageFormat, _mediaSettings.DefaultImageQuality);
                                 image.Dispose();
                             }
                         }
