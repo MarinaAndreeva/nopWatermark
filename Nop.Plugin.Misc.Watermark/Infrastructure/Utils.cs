@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
+using System.Linq;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Infrastructure;
@@ -20,11 +21,21 @@ namespace Nop.Plugin.Misc.Watermark.Infrastructure
                 fileInfo.Delete();
         }
 
-        public static byte[] ConvertImageToByteArray(Image image, ImageFormat imageFormat)
+        public static byte[] ConvertImageToByteArray(Image image, ImageFormat imageFormat, int jpegQuality)
         {
             using (var ms = new MemoryStream())
             {
-                image.Save(ms, imageFormat);
+                if (imageFormat.Equals(ImageFormat.Jpeg))
+                {
+                    ImageCodecInfo ici = ImageCodecInfo.GetImageEncoders().First(c => c.MimeType == "image/jpeg");
+                    EncoderParameters ep = new EncoderParameters();
+                    ep.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, jpegQuality);
+                    image.Save(ms, ici, ep);
+                }
+                else
+                {
+                    image.Save(ms, imageFormat);
+                }
                 return ms.ToArray();
             }
         }
