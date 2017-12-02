@@ -7,6 +7,7 @@ using System.Text;
 using System.Web.Routing;
 using Nop.Core;
 using Nop.Core.Domain.Localization;
+using Nop.Core.Domain.Media;
 using Nop.Core.Plugins;
 using Nop.Services.Caching;
 using Nop.Services.Common;
@@ -88,7 +89,11 @@ namespace Nop.Plugin.Misc.Watermark
 
         public override void Uninstall()
         {
-            _pictureService.DeletePicture(_pictureService.GetPictureById(_settingService.LoadSetting<WatermarkSettings>().PictureId));
+            Picture watermarkPicture = _pictureService.GetPictureById(_settingService.LoadSetting<WatermarkSettings>().PictureId);
+            if (watermarkPicture != null)
+            {
+                _pictureService.DeletePicture(watermarkPicture);
+            }
 
             _settingService.DeleteSetting<WatermarkSettings>();
             DeleteLocaleResources();
