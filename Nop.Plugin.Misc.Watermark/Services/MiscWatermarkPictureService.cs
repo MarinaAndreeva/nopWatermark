@@ -170,12 +170,12 @@ namespace Nop.Plugin.Misc.Watermark.Services
             //and does not decrease performance significantly, because the code is blocked only for the specific file.
             using (var mutex = new Mutex(false, thumbFileName))
             {
-                if (!GeneratedThumbExists(thumbFilePath, thumbFileName))
+                if (!File.Exists(thumbFilePath))
                 {
                     mutex.WaitOne();
 
                     //check, if the file was created, while we were waiting for the release of the mutex.
-                    if (!GeneratedThumbExists(thumbFilePath, thumbFileName))
+                    if (!File.Exists(thumbFilePath))
                     {
                         byte[] pictureBinaryResized;
 
@@ -229,7 +229,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
                             }
                         }
 
-                        SaveThumb(thumbFilePath, thumbFileName, pictureBinaryResized);
+                        File.WriteAllBytes(thumbFilePath, pictureBinaryResized);
                     }
 
                     mutex.ReleaseMutex();
