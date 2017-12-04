@@ -67,7 +67,7 @@ namespace Nop.Plugin.Misc.Watermark
                 TextRotatedDegree = 0,
                 WatermarkPictureEnable = false,
                 PictureId = this._pictureService.InsertPicture(File.ReadAllBytes(defaultWatermarkPictureMapPath),
-                    "image/png", "defaultWatermarkPicture").Id,
+                    "image/png", "defaultWatermarkPicture", true).Id,
                 PictureSettings = new CommonSettings()
                 {
                     Size = 50,

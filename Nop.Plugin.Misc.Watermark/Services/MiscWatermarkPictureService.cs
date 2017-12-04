@@ -45,7 +45,6 @@ namespace Nop.Plugin.Misc.Watermark.Services
             ISettingService settingService,
             IWebHelper webHelper,
             ILogger logger,
-            IDbContext dbContext,
             IEventPublisher eventPublisher,
             MediaSettings mediaSettings,
             IStoreContext storeContext,
@@ -55,7 +54,6 @@ namespace Nop.Plugin.Misc.Watermark.Services
                 settingService,
                 webHelper,
                 logger,
-                dbContext,
                 eventPublisher,
                 mediaSettings)
         {
@@ -120,8 +118,6 @@ namespace Nop.Plugin.Misc.Watermark.Services
                     pictureBinary,
                     picture.MimeType,
                     picture.SeoFilename,
-                    picture.AltAttribute,
-                    picture.TitleAttribute,
                     false,
                     false);
             }

@@ -125,7 +125,6 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
 
         [HttpPost]
         [ChildActionOnly]
-        [AdminAntiForgery]
         public ActionResult Configure(ConfigurationModel model)
         {
             if (!ModelState.IsValid)
