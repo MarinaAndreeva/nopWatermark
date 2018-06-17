@@ -82,7 +82,10 @@ namespace Nop.Plugin.Misc.Watermark.Services
                     if (watermarkPictureId != 0)
                     {
                         Picture picture = base.GetPictureById(watermarkPictureId);
-                        using (MemoryStream ms = new MemoryStream(picture.PictureBinary))
+                        byte[] pictureBinary = null;
+                        if (picture != null)
+                            pictureBinary = LoadPictureBinary(picture);
+                        using (MemoryStream ms = new MemoryStream(pictureBinary))
                         {
                             return new Bitmap(ms);
                         }
