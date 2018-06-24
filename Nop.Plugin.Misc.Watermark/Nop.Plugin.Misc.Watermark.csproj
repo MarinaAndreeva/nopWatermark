@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 <PropertyGroup>
 <TargetFramework>net461</TargetFramework>
-<Version>1.0.4</Version>
-<Copyright>Copyright © Marina Andreeva 2017</Copyright>
+<Version>1.0.5</Version>
+<Copyright>Copyright © Marina Andreeva 2018</Copyright>
 <Company>Marina Andreeva</Company>
 <Authors>Marina Andreeva</Authors>
 </PropertyGroup>
