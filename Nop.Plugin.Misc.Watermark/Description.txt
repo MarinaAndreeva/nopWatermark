@@ -1,7 +1,7 @@
 ﻿Group: Misc
 FriendlyName: Image Watermark
 SystemName: Misc.Watermark
-Version: 1.0.4
+Version: 1.0.5
 SupportedVersions: 3.60
 Author: Marina Andreieva
 DisplayOrder: 1
