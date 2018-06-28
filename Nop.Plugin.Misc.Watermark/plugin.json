@@ -2,7 +2,7 @@
   "Group": "Plugins Misc",
   "FriendlyName": "Image Watermark",
   "SystemName": "Misc.Watermark",
-  "Version": "1.0.5",
+  "Version": "1.0.6",
   "SupportedVersions": [ "4.00" ],
   "Author": "Marina Andreieva",
   "DisplayOrder": 1,
