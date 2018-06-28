@@ -138,7 +138,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
                 .Id;
             string lastPart = GetFileExtensionFromMimeType(picture.MimeType);
             string thumbFileName;
-            if (storeId == 0)
+            if (storeId == 1)
             {
                 if (targetSize == 0)
                 {
