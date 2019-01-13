@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using FluentValidation.Attributes;
 using Nop.Plugin.Misc.Watermark.Infrastructure;
 using Nop.Web.Framework.Mvc.ModelBinding;
-using Nop.Web.Framework.Mvc.Models;
+using Nop.Web.Framework.Models;
 
 namespace Nop.Plugin.Misc.Watermark.Models
 {

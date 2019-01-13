@@ -10,3 +10,7 @@
 .button-align-center {
     text-align: center !important;
 }
+
+#TextRotatedDegree {
+    -moz-appearance: textfield !important;
+}

@@ -16,33 +16,31 @@ using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Security;
 using Nop.Services.Stores;
-using Nop.Web.Areas.Admin.Controllers;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Nop.Plugin.Misc.Watermark.Controllers
 {
     [Area(AreaNames.Admin)]
     public class MiscWatermarkController : BasePluginController
     {
+        private readonly IStoreContext _storeContext;
         private readonly ILocalizationService _localizationService;
         private readonly ISettingService _settingService;
-        private readonly IStoreService _storeService;
         private readonly IPermissionService _permissionService;
-        private readonly IWorkContext _workContext;
 
         public MiscWatermarkController(
-            IWorkContext workContext,
             IStoreService storeService,
             IPermissionService permissionService,
             ILocalizationService localizationService,
-            ISettingService settingService)
+            ISettingService settingService,
+            IStoreContext storeContext)
         {
-            _workContext = workContext;
-            _storeService = storeService;
             _localizationService = localizationService;
             _settingService = settingService;
             _permissionService = permissionService;
+            _storeContext = storeContext;
         }
 
         public IActionResult Configure()
@@ -52,7 +50,7 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
 
             List<string> availableFonts = GetAvailableFontNames();
 
-            int activeStoreScope = GetActiveStoreScopeConfiguration(_storeService, _workContext);
+            int activeStoreScope = _storeContext.ActiveStoreScopeConfiguration;
             WatermarkSettings settings = _settingService.LoadSetting<WatermarkSettings>(activeStoreScope);
 
             var model = new ConfigurationModel
@@ -61,7 +59,7 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
                 WatermarkText = settings.WatermarkText,
                 AvailableFontsList = availableFonts.Select(s => new SelectListItem {Text = s, Value = s}).ToList(),
                 WatermarkFont = settings.WatermarkFont,
-                TextColor = $"{settings.TextColor.R:X2}{settings.TextColor.G:X2}{settings.TextColor.B:X2}",
+                TextColor = $"{settings.TextColor}",
                 TextSettings = new CommonWatermarkSettings
                 {
                     Size = settings.TextSettings.Size,
@@ -145,7 +143,7 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
                 return Configure();
             }
 
-            int activeStoreScope = GetActiveStoreScopeConfiguration(_storeService, _workContext);
+            int activeStoreScope = _storeContext.ActiveStoreScopeConfiguration;
 
             WatermarkSettings settings = _settingService.LoadSetting<WatermarkSettings>(activeStoreScope);
 
@@ -154,7 +152,7 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
             settings.WatermarkFont = model.WatermarkFont;
             if (model.TextColor != null)
             {
-                settings.TextColor = ColorTranslator.FromHtml("#" + model.TextColor);
+                settings.TextColor = ColorBuilder<Rgba32>.FromHex(model.TextColor).ToRgb24Hex();
             }
             settings.TextRotatedDegree = model.TextRotatedDegree;
             if (model.TextSettings != null)

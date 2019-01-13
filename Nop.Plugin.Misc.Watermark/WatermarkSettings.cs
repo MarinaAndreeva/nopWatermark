@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using Newtonsoft.Json;
 using Nop.Core.Configuration;
 
@@ -12,7 +10,7 @@ namespace Nop.Plugin.Misc.Watermark
         public bool WatermarkTextEnable { get; set; }
         public string WatermarkText { get; set; }
         public string WatermarkFont { get; set; }
-        public Color TextColor { get; set; }
+        public string TextColor { get; set; }
         public int TextRotatedDegree { get; set; }
         public CommonSettings TextSettings { get; set; }
 

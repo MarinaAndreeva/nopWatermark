@@ -1,23 +1,32 @@
 ﻿using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-using System.Drawing.Text;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using ImageResizer;
-using Microsoft.AspNetCore.Hosting;
 using Nop.Core;
 using Nop.Core.Data;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Media;
-using Nop.Core.Plugins;
+using Nop.Core.Infrastructure;
 using Nop.Data;
-using Nop.Plugin.Misc.Watermark.Infrastructure;
+using Nop.Services.Catalog;
 using Nop.Services.Configuration;
 using Nop.Services.Events;
 using Nop.Services.Logging;
+using Nop.Services.Plugins;
+using Nop.Services.Seo;
+using SixLabors.Fonts;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Processing.Drawing;
+using SixLabors.ImageSharp.Processing.Text;
+using SixLabors.ImageSharp.Processing.Transforms;
+using SixLabors.Primitives;
+using FontStyle = SixLabors.Fonts.FontStyle;
+using PointF = SixLabors.Primitives.PointF;
+using Size = SixLabors.Primitives.Size;
+using SizeF = SixLabors.Primitives.SizeF;
+using SystemFonts = SixLabors.Fonts.SystemFonts;
 
 namespace Nop.Plugin.Misc.Watermark.Services
 {
@@ -26,12 +35,10 @@ namespace Nop.Plugin.Misc.Watermark.Services
         private readonly IRepository<ProductPicture> _productPictureRepository;
         private readonly IRepository<Category> _categoryRepository;
         private readonly IRepository<Manufacturer> _manufacturerRepository;
-        private readonly MediaSettings _mediaSettings;
         private readonly IPluginFinder _pluginFinder;
         private readonly ISettingService _settingService;
         private readonly IStoreContext _storeContext;
-        private readonly ILogger _logger;
-        private readonly Lazy<Bitmap> _watermarkBitmap;
+        private readonly Lazy<Image<Rgba32>> _watermarkImage;
 
         private bool IsPluginInstalled
         {
@@ -40,41 +47,43 @@ namespace Nop.Plugin.Misc.Watermark.Services
 
         public MiscWatermarkPictureService(
             IRepository<Picture> pictureRepository,
-            IRepository<Category> categoryRepository, 
+            IRepository<Category> categoryRepository,
             IRepository<Manufacturer> manufacturerRepository,
             IRepository<ProductPicture> productPictureRepository,
             ISettingService settingService,
             IWebHelper webHelper,
-            ILogger logger,
             IDbContext dbContext,
             IEventPublisher eventPublisher,
             MediaSettings mediaSettings,
             IDataProvider dataProvider,
             IStoreContext storeContext,
             IPluginFinder pluginFinder,
-            IHostingEnvironment hostingEnvironment)
-            : base(pictureRepository,
-                productPictureRepository,
-                settingService,
-                webHelper,
-                logger,
+            INopFileProvider fileProvider,
+            IProductAttributeParser productAttributeParser,
+            IRepository<PictureBinary> pictureBinaryRepository,
+            IUrlRecordService urlRecordService)
+            : base(dataProvider,
                 dbContext,
                 eventPublisher,
-                mediaSettings,
-                dataProvider,
-                hostingEnvironment)
+                fileProvider,
+                productAttributeParser,
+                pictureRepository,
+                pictureBinaryRepository,
+                productPictureRepository,
+                settingService,
+                urlRecordService,
+                webHelper,
+                mediaSettings)
         {
             _categoryRepository = categoryRepository;
             _manufacturerRepository = manufacturerRepository;
             _productPictureRepository = productPictureRepository;
             _settingService = settingService;
-            _logger = logger;
-            _mediaSettings = mediaSettings;
 
             _storeContext = storeContext;
             _pluginFinder = pluginFinder;
 
-            _watermarkBitmap = new Lazy<Bitmap>(() =>
+            _watermarkImage = new Lazy<Image<Rgba32>>(() =>
             {
                 if (IsPluginInstalled)
                 {
@@ -83,10 +92,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
                     {
                         Picture picture = base.GetPictureById(watermarkPictureId);
                         byte[] pictureBinary = LoadPictureBinary(picture);
-                        using (MemoryStream ms = new MemoryStream(pictureBinary))
-                        {
-                            return new Bitmap(ms);
-                        }
+                        return Image.Load(pictureBinary);
                     }
                 }
                 return null;
@@ -134,8 +140,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
 
             var seoFileName = picture.SeoFilename;
 
-            int storeId = Nop.Core.Infrastructure.EngineContext.Current.Resolve<Nop.Core.IStoreContext>().CurrentStore
-                .Id;
+            int storeId = EngineContext.Current.Resolve<Nop.Core.IStoreContext>().CurrentStore.Id;
             string lastPart = GetFileExtensionFromMimeType(picture.MimeType);
             string thumbFileName;
             if (storeId == 1)
@@ -189,48 +194,25 @@ namespace Nop.Plugin.Misc.Watermark.Services
                         {
                             using (var stream = new MemoryStream(pictureBinary))
                             {
-                                Bitmap b = null;
-                                try
+                                //resizing required
+                                using (var originImage = Image.Load(pictureBinary, out var imageFormat))
                                 {
-                                    //try-catch to ensure that picture binary is really OK. Otherwise, we can get "Parameter is not valid" exception if binary is corrupted for some reasons
-                                    b = new Bitmap(stream);
+                                    originImage.Mutate(imageProcess => imageProcess.Resize(new ResizeOptions
+                                    {
+                                        Mode = ResizeMode.Max,
+                                        Size = CalculateDimensions(originImage.Size(), targetSize)
+                                    }));
+                                    Image<Rgba32> image = MakeImageWatermark(originImage, picture.Id);
+                                    pictureBinaryResized = EncodeImage(image, imageFormat);
                                 }
-                                catch (ArgumentException exc)
-                                {
-                                    _logger.Error(string.Format("Error generating picture thumb. ID={0}", picture.Id),
-                                        exc);
-                                }
-
-                                if (b == null)
-                                {
-                                    //bitmap could not be loaded for some reasons
-                                    return url;
-                                }
-                                
-                                var newSize = CalculateDimensions(b.Size, targetSize);
-                                ImageFormat sourceImageFormat = b.RawFormat;
-                                Bitmap resizedBitmap = ImageBuilder.Current.Build(b, new ResizeSettings
-                                {
-                                    Width = newSize.Width,
-                                    Height = newSize.Height,
-                                    Scale = ScaleMode.Both
-                                });
-                                Image image = MakeImageWatermark(resizedBitmap, picture.Id);
-                                pictureBinaryResized = Utils.ConvertImageToByteArray(image, sourceImageFormat, _mediaSettings.DefaultImageQuality);
-                                b.Dispose();
-                                resizedBitmap.Dispose();
-                                image.Dispose();
                             }
                         }
                         else
                         {
-                            using (var stream = new MemoryStream(pictureBinary))
+                            using (var originImage = Image.Load(pictureBinary, out var imageFormat))
                             {
-                                Image sourceImage = Image.FromStream(stream);
-                                ImageFormat sourceImageFormat = sourceImage.RawFormat;
-                                Image image = MakeImageWatermark(sourceImage, picture.Id);
-                                pictureBinaryResized = Utils.ConvertImageToByteArray(image, sourceImageFormat, _mediaSettings.DefaultImageQuality);
-                                image.Dispose();
+                                Image<Rgba32> image = MakeImageWatermark(originImage, picture.Id);
+                                pictureBinaryResized = EncodeImage(image, imageFormat);
                             }
                         }
 
@@ -244,7 +226,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
             return url;
         }
 
-        private Image MakeImageWatermark(Image sourceImage, int pictureId)
+        private Image<Rgba32> MakeImageWatermark(Image<Rgba32> sourceImage, int pictureId)
         {
             WatermarkSettings currentSettings = GetSettings();
             bool applyWatermark = IsWaterkmarkRequired(pictureId, currentSettings);
@@ -253,130 +235,82 @@ namespace Nop.Plugin.Misc.Watermark.Services
                 ((sourceImage.Height > currentSettings.MinimumImageHeightForWatermark) ||
                  (sourceImage.Width > currentSettings.MinimumImageWidthForWatermark)))
             {
-                Bitmap destBitmap = CreateBitmap(sourceImage);
-
                 if (currentSettings.WatermarkTextEnable && !String.IsNullOrEmpty(currentSettings.WatermarkText))
                 {
-                    PlaceTextWatermark(destBitmap, currentSettings);
+                    PlaceTextWatermark(sourceImage, currentSettings);
                 }
                 
-                if (currentSettings.WatermarkPictureEnable && _watermarkBitmap.Value != null)
+                if (currentSettings.WatermarkPictureEnable && _watermarkImage.Value != null)
                 {
-                    PlaceImageWatermark(destBitmap, _watermarkBitmap.Value, currentSettings);
+                    PlaceImageWatermark(sourceImage, _watermarkImage.Value, currentSettings);
                 }
-
-                sourceImage.Dispose();
-                return destBitmap;
             }
             return sourceImage;
         }
 
-        private static void PlaceImageWatermark(Bitmap destBitmap, Bitmap watermarkBitmap, WatermarkSettings currentSettings)
+        private static void PlaceImageWatermark(Image<Rgba32> destImage, Image<Rgba32> watermarkImage, WatermarkSettings currentSettings)
         {
-            using (Graphics g = Graphics.FromImage(destBitmap))
+            double watermarkSizeInPercent = (double)currentSettings.PictureSettings.Size / 100;
+            Size boundingBoxSize = new Size((int)(destImage.Width * watermarkSizeInPercent),
+                (int)(destImage.Height * watermarkSizeInPercent));
+            Size calculatedWatermarkSize = ScaleRectangleToFitBounds(boundingBoxSize, watermarkImage.Size());
+            if (calculatedWatermarkSize.Width == 0 || calculatedWatermarkSize.Height == 0)
             {
-                double watermarkSizeInPercent = (double) currentSettings.PictureSettings.Size / 100;
+                return;
+            }
 
-                Size boundingBoxSize = new Size((int) (destBitmap.Width * watermarkSizeInPercent),
-                    (int) (destBitmap.Height * watermarkSizeInPercent));
-                Size calculatedWatermarkSize = ScaleRectangleToFitBounds(boundingBoxSize, watermarkBitmap.Size);
+            Size watermarkSize = new Size((int)(calculatedWatermarkSize.Width), (int)(calculatedWatermarkSize.Height));
+            watermarkImage.Mutate(w => w.Resize(watermarkSize));
 
-                if (calculatedWatermarkSize.Width == 0 || calculatedWatermarkSize.Height == 0)
-                {
-                    return;
-                }
-
-                Bitmap scaledWatermarkBitmap =
-                    new Bitmap(calculatedWatermarkSize.Width, calculatedWatermarkSize.Height);
-                using (Graphics watermarkGraphics = Graphics.FromImage(scaledWatermarkBitmap))
-                {
-                    ColorMatrix opacityMatrix = new ColorMatrix
-                    {
-                        Matrix33 = (float) currentSettings.PictureSettings.Opacity
-                    };
-                    ImageAttributes attrs = new ImageAttributes();
-                    attrs.SetColorMatrix(opacityMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-                    watermarkGraphics.DrawImage(watermarkBitmap,
-                        new Rectangle(0, 0, scaledWatermarkBitmap.Width, scaledWatermarkBitmap.Height),
-                        0, 0, watermarkBitmap.Width, watermarkBitmap.Height,
-                        GraphicsUnit.Pixel, attrs);
-                    attrs.Dispose();
-                }
-                
-                foreach (var position in currentSettings.PictureSettings.PositionList)
-                {
-                    Point watermarkPosition = CalculateWatermarkPosition(position,
-                        destBitmap.Size, calculatedWatermarkSize);
-
-                    g.DrawImage(scaledWatermarkBitmap,
-                        new Rectangle(watermarkPosition, calculatedWatermarkSize),
-                        0, 0, calculatedWatermarkSize.Width, calculatedWatermarkSize.Height, GraphicsUnit.Pixel);
-                }
-                scaledWatermarkBitmap.Dispose();
+            foreach (var position in currentSettings.PictureSettings.PositionList)
+            {
+                Point watermarkPosition = CalculateWatermarkPosition(position, destImage.Size(), calculatedWatermarkSize);
+                destImage.Mutate(d => d.DrawImage(watermarkImage, (float)currentSettings.PictureSettings.Opacity, watermarkPosition));
             }
         }
 
-        private void PlaceTextWatermark(Bitmap sourceBitmap, WatermarkSettings currentSettings)
+        private void PlaceTextWatermark(Image<Rgba32> sourceBitmap, WatermarkSettings currentSettings)
         {
-            using (Graphics g = Graphics.FromImage(sourceBitmap))
+            string text = currentSettings.WatermarkText;
+            int textAngle = currentSettings.TextRotatedDegree;
+            double sizeFactor = (double)currentSettings.TextSettings.Size / 100;
+            Size maxTextSize = new Size(
+                (int)(sourceBitmap.Width * sizeFactor),
+                (int)(sourceBitmap.Height * sizeFactor));
+
+            int fontSize = ComputeMaxFontSize(text, textAngle, currentSettings.WatermarkFont, maxTextSize);
+            Font font = SystemFonts.CreateFont(currentSettings.WatermarkFont, (float)fontSize, FontStyle.Bold);
+            SizeF originalTextSize = TextMeasurer.Measure(text, new RendererOptions(font));
+
+            using (var textImage = new Image<Rgba32>((int) originalTextSize.Width, (int) originalTextSize.Height))
             {
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.TextRenderingHint = TextRenderingHint.AntiAlias;
-
-                string text = currentSettings.WatermarkText;
-
-                int textAngle = currentSettings.TextRotatedDegree;
-                double sizeFactor = (double)currentSettings.TextSettings.Size / 100;
-                Size maxTextSize = new Size(
-                    (int)(sourceBitmap.Width * sizeFactor),
-                    (int)(sourceBitmap.Height * sizeFactor));
-                
-                int fontSize = ComputeMaxFontSize(text, textAngle, currentSettings.WatermarkFont, maxTextSize, g);
-                
-                Font font = new Font(currentSettings.WatermarkFont, (float)fontSize, FontStyle.Bold);
-                SizeF originalTextSize = g.MeasureString(text, font);
-                SizeF rotatedTextSize = CalculateRotatedRectSize(originalTextSize, textAngle);
-                
-                Bitmap textBitmap = new Bitmap((int)rotatedTextSize.Width, (int)rotatedTextSize.Height,
-                    PixelFormat.Format32bppArgb);
-                using (Graphics textG = Graphics.FromImage(textBitmap))
-                {
-                    Color color = Color.FromArgb((int)(currentSettings.TextSettings.Opacity * 255), currentSettings.TextColor);
-                    SolidBrush brush = new SolidBrush(color);
-
-                    textG.TranslateTransform(rotatedTextSize.Width / 2, rotatedTextSize.Height / 2);
-                    textG.RotateTransform((float)textAngle);
-                    textG.DrawString(text, font, brush, -originalTextSize.Width / 2,
-                        -originalTextSize.Height / 2);
-                    textG.ResetTransform();
-
-                    brush.Dispose();
-                }
+                Rgba32 color = ColorBuilder<Rgba32>.FromHex(currentSettings.TextColor);
+                color.A = (byte)(currentSettings.TextSettings.Opacity * 255);
+                textImage.Mutate(i =>
+                    i
+                        .DrawText(new TextGraphicsOptions(true), text, font, color, new PointF(0, 0))
+                        .Rotate(textAngle)
+                );
 
                 foreach (var position in currentSettings.TextSettings.PositionList)
                 {
-                    Point textPosition = CalculateWatermarkPosition(position,
-                        sourceBitmap.Size, rotatedTextSize.ToSize());
-                    g.DrawImage(textBitmap, textPosition);
+                    Point textPosition = CalculateWatermarkPosition(position, sourceBitmap.Size(), textImage.Size());
+                    sourceBitmap.Mutate(s => s.DrawImage(textImage, 1, textPosition));
                 }
-                textBitmap.Dispose();
-                font.Dispose();
             }
         }
 
-        private int ComputeMaxFontSize(string text, int angle, string fontName, Size maxTextSize, Graphics g)
+        private int ComputeMaxFontSize(string text, int angle, string fontName, Size maxTextSize)
         {
             for (int fontSize = 2; ; fontSize++)
             {
-                using (Font tmpFont = new Font(fontName, fontSize, FontStyle.Bold))
+                Font tmpFont = SystemFonts.CreateFont(fontName, fontSize, FontStyle.Bold);
+                SizeF textSize = TextMeasurer.Measure(text, new RendererOptions(tmpFont));
+                SizeF rotatedTextSize = CalculateRotatedRectSize(textSize, angle);
+                if (((int)rotatedTextSize.Width > maxTextSize.Width) ||
+                    ((int)rotatedTextSize.Height > maxTextSize.Height))
                 {
-                    SizeF textSize = g.MeasureString(text, tmpFont);
-                    SizeF rotatedTextSize = CalculateRotatedRectSize(textSize, angle);
-                    if (((int)rotatedTextSize.Width > maxTextSize.Width) ||
-                        ((int)rotatedTextSize.Height > maxTextSize.Height))
-                    {
-                        return fontSize - 1;
-                    }
+                    return fontSize - 1;
                 }
             }
         }
@@ -401,18 +335,6 @@ namespace Nop.Plugin.Misc.Watermark.Services
         private WatermarkSettings GetSettings()
         {
             return _settingService.LoadSetting<WatermarkSettings>(_storeContext.CurrentStore.Id);
-        }
-        
-        private static Bitmap CreateBitmap(Image sourceImage)
-        {
-            Bitmap destBitmap = new Bitmap(sourceImage.Width, sourceImage.Height, PixelFormat.Format32bppArgb);
-            destBitmap.SetResolution(sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
-            using (Graphics g = Graphics.FromImage(destBitmap))
-            {
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.DrawImage(sourceImage, 0, 0);
-            }
-            return destBitmap;
         }
 
         private static Size ScaleRectangleToFitBounds(Size bounds, Size rect)
@@ -497,9 +419,9 @@ namespace Nop.Plugin.Misc.Watermark.Services
 
         private void ReleaseUnmanagedResources()
         {
-            if (_watermarkBitmap.IsValueCreated)
+            if (_watermarkImage.IsValueCreated)
             {
-                _watermarkBitmap.Value.Dispose();
+                _watermarkImage.Value.Dispose();
             }
         }
 

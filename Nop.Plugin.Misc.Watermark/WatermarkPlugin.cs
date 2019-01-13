@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Microsoft.AspNetCore.Hosting;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Localization;
@@ -17,6 +14,7 @@ using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Media;
 using Nop.Plugin.Misc.Watermark.Infrastructure;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Nop.Plugin.Misc.Watermark
 {
@@ -27,18 +25,20 @@ namespace Nop.Plugin.Misc.Watermark
         private readonly ILanguageService _languageService;
         private readonly ISettingService _settingService;
         private readonly IWebHelper _webHelper;
-        private readonly string _pluginLocalesPath = CommonHelper.MapPath("~/Plugins/Misc.Watermark/Resources");
-        private readonly string _defaultWatermarkPicturePath =
-            CommonHelper.MapPath("~/Plugins/Misc.Watermark/Content/defaultWatermarkPicture.png");
+        private readonly string _pluginLocalesPath;
+        private readonly string _defaultWatermarkPicturePath;
 
         public WatermarkPlugin(ISettingService settingService, IPictureService pictureService,
-            ILocalizationService localizationService, ILanguageService languageService, IWebHelper webHelper)
+            ILocalizationService localizationService, ILanguageService languageService, IWebHelper webHelper, INopFileProvider fileProvider)
         {
             _settingService = settingService;
             _pictureService = pictureService;
             _localizationService = localizationService;
             _languageService = languageService;
             _webHelper = webHelper;
+
+            _pluginLocalesPath = fileProvider.MapPath("~/Plugins/Misc.Watermark/Resources");
+            _defaultWatermarkPicturePath = fileProvider.MapPath("~/Plugins/Misc.Watermark/Content/defaultWatermarkPicture.png");
         }
 
         public override string GetConfigurationPageUrl()
@@ -54,7 +54,7 @@ namespace Nop.Plugin.Misc.Watermark
                 WatermarkTextEnable = false,
                 WatermarkText = "watermark text",
                 WatermarkFont = "Arial",
-                TextColor = Color.FromArgb(8,3,71),
+                TextColor = new Rgba32(8,3,71).ToRgb24Hex(),
                 TextSettings = new CommonSettings()
                 {
                     Size = 50,
