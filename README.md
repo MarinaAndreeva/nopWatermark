@@ -4,7 +4,7 @@
 ![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg) 
 [![License: GPL v3](https://img.shields.io/badge/license-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-This repository contains Image Watermark Plugin for NopCommerce version 3.5, 3.6, 3.7, 3.8, 3.9, 4.0. This plugin dynamically adds watermarks (text or picture) to the store pictures without changing the original images. This plugin also supports a multi-store configuration.
+This repository contains Image Watermark Plugin for NopCommerce version 3.5, 3.6, 3.7, 3.8, 3.9, 4.0, 4.10. This plugin dynamically adds watermarks (text or picture) to the store pictures without changing the original images. This plugin also supports a multi-store configuration.
 
 ## Table of contents
 
@@ -37,7 +37,7 @@ You can download plugin from [marketplace](https://www.nopcommerce.com/p/2960/no
 - Click on the Install link to install the plugin.
 - The plugin is displayed in the Plugins windows (Configuration → Plugins → Local Plugins).
 
-#### In nopCommerce 4.00 you can also:
+#### In nopCommerce >=4.00 you can also:
 - Go to the Plugins windows (Configuration → Plugins → Local Plugins).
 - Uninstall the plugin.
 - Delete the plugin (click "Delete" button).
@@ -55,7 +55,7 @@ You can download plugin from [marketplace](https://www.nopcommerce.com/p/2960/no
  - Click on the Install link to install the plugin.
  - The plugin is displayed in the Plugins windows (Configuration → Plugins → Local Plugins).
 
-#### In nopCommerce 4.00 you can also:
+#### In nopCommerce >=4.00 you can also:
 - Go to the Plugins windows (Configuration → Plugins → Local Plugins).
 - Click "Upload plugin" button.
 - Select *zip* file that contains the plugin and upload it.
