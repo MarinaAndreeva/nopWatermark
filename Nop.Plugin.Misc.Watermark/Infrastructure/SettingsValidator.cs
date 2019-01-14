@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Nop.Plugin.Misc.Watermark.Models;
 using Nop.Services.Localization;
 
@@ -18,10 +18,10 @@ namespace Nop.Plugin.Misc.Watermark.Infrastructure
         public CommonWatermarkSettingsValidator(ILocalizationService localizationService)
         {
             RuleFor(x => x.Opacity).GreaterThanOrEqualTo(0).LessThanOrEqualTo(1).WithMessage(
-                localizationService.GetResource("Plugins.Misc.Watermark.WatermarkOpacityErrorMessage"), 0, 1);
+                string.Format(localizationService.GetResource("Plugins.Misc.Watermark.WatermarkOpacityErrorMessage"), 0, 1));
 
-            RuleFor(x => x.Size).GreaterThanOrEqualTo(0).LessThanOrEqualTo(100)
-                .WithMessage(localizationService.GetResource("Plugins.Misc.Watermark.SizeErrorMessage"), 0, 100);
+            RuleFor(x => x.Size).GreaterThanOrEqualTo(0).LessThanOrEqualTo(100).WithMessage(
+                 string.Format(localizationService.GetResource("Plugins.Misc.Watermark.SizeErrorMessage"), 0, 100));
         }
     }
 }
