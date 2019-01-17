@@ -8,18 +8,18 @@
 </PropertyGroup>
 <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
-<OutputPath>..\..\..\Presentation\Nop.Web\Plugins\Misc.Watermark</OutputPath>
+<OutputPath>..\..\Presentation\Nop.Web\Plugins\Misc.Watermark</OutputPath>
 <OutDir>$(OutputPath)</OutDir>
 <WarningLevel>3</WarningLevel>
 </PropertyGroup>
 <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-<OutputPath>..\..\..\Presentation\Nop.Web\Plugins\Misc.Watermark</OutputPath>
+<OutputPath>..\..\Presentation\Nop.Web\Plugins\Misc.Watermark</OutputPath>
 <OutDir>$(OutputPath)</OutDir>
 </PropertyGroup>
 <!-- This target execute after "Build" target -->
 <Target Name="NopTarget" AfterTargets="Build">
 <!-- Delete unnecessary libraries from plugins path -->
-<MSBuild Projects="$(MSBuildProjectDirectory)\..\..\..\Build\ClearPluginAssemblies.proj" Properties="PluginPath=$(MSBuildProjectDirectory)\$(OutDir)" Targets="NopClear" />
+<MSBuild Projects="$(MSBuildProjectDirectory)\..\..\Build\ClearPluginAssemblies.proj" Properties="PluginPath=$(MSBuildProjectDirectory)\$(OutDir)" Targets="NopClear" />
 </Target>
 <ItemGroup>
   <Content Include="Views\MiscWatermark\_ViewImports.cshtml">
@@ -32,9 +32,7 @@
   <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0004" />
 </ItemGroup>
 <ItemGroup>
-  <ProjectReference Include="..\..\..\Presentation\Nop.Web.Framework\Nop.Web.Framework.csproj">
-    <Private>false</Private>
-  </ProjectReference>
+  <ProjectReference Include="..\..\Presentation\Nop.Web.Framework\Nop.Web.Framework.csproj" />
 </ItemGroup>
 <ItemGroup>
   <None Update="Content\defaultWatermarkPicture.png">
