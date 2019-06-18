@@ -4,7 +4,7 @@
 ![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg) 
 [![License: GPL v3](https://img.shields.io/badge/license-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-This repository contains Image Watermark Plugin for NopCommerce version 3.5, 3.6, 3.7, 3.8, 3.9, 4.0. This plugin dynamically adds watermarks (text or picture) to the store pictures without changing the original images. This plugin also supports a multi-store configuration.
+This repository contains Image Watermark Plugin for NopCommerce version 3.5, 3.6, 3.7, 3.8, 3.9, 4.0, 4.10, 4.20. This plugin dynamically adds watermarks (text or picture) to the store pictures without changing the original images. This plugin also supports a multi-store configuration.
 
 ## Table of contents
 
@@ -81,6 +81,8 @@ Options:
  - **Enable text watermark** – check this box to enable text watermark.
  - **Text** – this text will be displayed in the store pictures.
  - You can also select: **text font**, **text color**, watermark **size in %** relative to the original image, **position** of the watermark text, **opacity** (0 – transparent text, 1 – opaque text) and watermark text **rotation angle**.
+
+There is the possibility of using custom fonts for text watermark. This can be achieved by placing the TTF font file in the Fonts folder. After installing/reloading the plugin, the added font will appear in the **Text font** plugin setting.
 
 ### **Picture watermark**
 
