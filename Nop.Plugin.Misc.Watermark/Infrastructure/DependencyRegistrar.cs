@@ -16,6 +16,7 @@ namespace Nop.Plugin.Misc.Watermark.Infrastructure
         {
             builder.RegisterType<MiscWatermarkController>().WithParameter(ResolvedParameter.ForNamed<ICacheManager>("nop_cache_static"));
             builder.RegisterType<MiscWatermarkPictureService>().As<IPictureService>().InstancePerLifetimeScope();
+            builder.RegisterType<CustomFonts>().SingleInstance();
         }
 
         public int Order

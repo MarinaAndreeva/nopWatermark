@@ -10,7 +10,7 @@ namespace Nop.Plugin.Misc.Watermark.Infrastructure
         public static void ClearThumbsDirectory()
         {
             string defaultThumbsPath = Path.Combine(EngineContext.Current.Resolve<IHostingEnvironment>().
-                WebRootPath, "images\\thumbs");
+                WebRootPath, Path.Combine("images", "thumbs"));
             var imageDirectoryInfo = new DirectoryInfo(defaultThumbsPath);
             foreach (var fileInfo in imageDirectoryInfo.GetFiles())
                 fileInfo.Delete();

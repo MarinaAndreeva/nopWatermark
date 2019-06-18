@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using FluentValidation.Attributes;
 using Nop.Plugin.Misc.Watermark.Infrastructure;
 using Nop.Web.Framework.Mvc.ModelBinding;
 using Nop.Web.Framework.Models;
 
 namespace Nop.Plugin.Misc.Watermark.Models
 {
-    [Validator(typeof(ConfigurationModelValidator))]
     public class ConfigurationModel : BaseNopModel
     {
         public int ActiveStoreScopeConfiguration { get; set; }

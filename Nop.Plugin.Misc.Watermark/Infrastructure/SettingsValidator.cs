@@ -1,10 +1,11 @@
-using FluentValidation;
+﻿using FluentValidation;
 using Nop.Plugin.Misc.Watermark.Models;
 using Nop.Services.Localization;
+using Nop.Web.Framework.Validators;
 
 namespace Nop.Plugin.Misc.Watermark.Infrastructure
 {
-    public class ConfigurationModelValidator : AbstractValidator<ConfigurationModel>
+    public class ConfigurationModelValidator : BaseNopValidator<ConfigurationModel>
     {
         public ConfigurationModelValidator(ILocalizationService localizationService)
         {

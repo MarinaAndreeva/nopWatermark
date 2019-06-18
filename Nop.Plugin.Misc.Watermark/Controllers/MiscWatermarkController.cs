@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Text;
+using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -14,11 +15,13 @@ using Nop.Plugin.Misc.Watermark.Models;
 using Nop.Services.Caching;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
+using Nop.Services.Messages;
 using Nop.Services.Security;
 using Nop.Services.Stores;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
 using SixLabors.ImageSharp.PixelFormats;
+using FontCollection = SixLabors.Fonts.FontCollection;
 
 namespace Nop.Plugin.Misc.Watermark.Controllers
 {
@@ -26,21 +29,27 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
     public class MiscWatermarkController : BasePluginController
     {
         private readonly IStoreContext _storeContext;
+        private readonly CustomFonts _customFonts;
         private readonly ILocalizationService _localizationService;
         private readonly ISettingService _settingService;
         private readonly IPermissionService _permissionService;
+        private readonly INotificationService _notificationService;
 
         public MiscWatermarkController(
             IStoreService storeService,
             IPermissionService permissionService,
             ILocalizationService localizationService,
+            INotificationService notificationService,
             ISettingService settingService,
-            IStoreContext storeContext)
+            IStoreContext storeContext,
+            CustomFonts customFonts)
         {
             _localizationService = localizationService;
+            _notificationService = notificationService;
             _settingService = settingService;
             _permissionService = permissionService;
             _storeContext = storeContext;
+            _customFonts = customFonts;
         }
 
         public IActionResult Configure()
@@ -48,16 +57,13 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
             if (!_permissionService.Authorize(StandardPermissionProvider.ManagePlugins))
                 return AccessDeniedView();
 
-            List<string> availableFonts = GetAvailableFontNames();
-
             int activeStoreScope = _storeContext.ActiveStoreScopeConfiguration;
             WatermarkSettings settings = _settingService.LoadSetting<WatermarkSettings>(activeStoreScope);
-
             var model = new ConfigurationModel
             {
                 WatermarkTextEnable = settings.WatermarkTextEnable,
                 WatermarkText = settings.WatermarkText,
-                AvailableFontsList = availableFonts.Select(s => new SelectListItem {Text = s, Value = s}).ToList(),
+                AvailableFontsList = GetAvailableFontNames(),
                 WatermarkFont = settings.WatermarkFont,
                 TextColor = $"{settings.TextColor}",
                 TextSettings = new CommonWatermarkSettings
@@ -98,6 +104,11 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
                 MinimumImageWidthForWatermark = settings.MinimumImageWidthForWatermark,
                 MinimumImageHeightForWatermark = settings.MinimumImageHeightForWatermark
             };
+            //if the selected font is removed from the font catalog
+            if (model.AvailableFontsList.All(i => i.Value != model.WatermarkFont))
+            {
+                model.WatermarkFont = "";
+            }
             if (activeStoreScope > 0)
             {
                 model.WatermarkTextEnable_OverrideForStore =
@@ -210,7 +221,7 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
             new ClearCacheTask(EngineContext.Current.Resolve<IStaticCacheManager>()).Execute();
             Utils.ClearThumbsDirectory();
 
-            SuccessNotification(_localizationService.GetResource("Admin.Plugins.Saved"));
+            _notificationService.SuccessNotification(_localizationService.GetResource("Admin.Plugins.Saved"));
 
             return Configure();
         }
@@ -239,10 +250,19 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
             return positionList;
         }
 
-        private static List<string> GetAvailableFontNames()
+        private List<SelectListItem> GetAvailableFontNames()
         {
-            var fonts = new InstalledFontCollection();
-            return fonts.Families.Select(f => f.Name).ToList();
+            var customFontsCollection = _customFonts.FontCollection();
+
+            IEnumerable<string> systemFonts = SixLabors.Fonts.SystemFonts.Families.Select(f => f.Name);
+            IEnumerable<string> customFonts = customFontsCollection.Families.Select(f => f.Name);
+            SelectListGroup customGroup = new SelectListGroup {Name = "Custom"};
+            SelectListGroup systemGroup = new SelectListGroup {Name = "System"};
+            return customFonts.Select(s => new SelectListItem {Text = s, Value = _customFonts.CustomFontPrefix + s, Group = customGroup})
+                .Concat(systemFonts.Select(s => new SelectListItem {Text = s, Value = s, Group = systemGroup}))
+                .ToList();
         }
+
+        
     }
 }

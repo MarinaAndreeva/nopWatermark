@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 <PropertyGroup>
-<TargetFramework>netcoreapp2.1</TargetFramework>
-<Version>1.0.7</Version>
+<TargetFramework>netcoreapp2.2</TargetFramework>
+<Version>1.0.8</Version>
 <Copyright>Copyright © Marina Andreeva 2018</Copyright>
 <Company>Marina Andreeva</Company>
 <Authors>Marina Andreeva</Authors>
@@ -27,9 +27,9 @@
   </Content>
 </ItemGroup>
 <ItemGroup>
-  <PackageReference Include="SixLabors.Fonts" Version="1.0.0-beta0006" />
-  <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0004" />
-  <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0004" />
+  <PackageReference Include="SixLabors.Fonts" Version="1.0.0-beta0008" />
+  <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
+  <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0006" />
 </ItemGroup>
 <ItemGroup>
   <ProjectReference Include="..\..\..\Presentation\Nop.Web.Framework\Nop.Web.Framework.csproj">
@@ -41,6 +41,93 @@
     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
   </None>
   <None Update="Content\watermark.css">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Noto_Sans\LICENSE.txt">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Noto_Sans\NotoSans-Bold.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Noto_Sans\NotoSans-BoldItalic.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Noto_Sans\NotoSans-Italic.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Noto_Sans\NotoSans-Regular.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Open_Sans\LICENSE.txt">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Open_Sans\OpenSans-Bold.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Open_Sans\OpenSans-BoldItalic.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Open_Sans\OpenSans-ExtraBold.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Open_Sans\OpenSans-ExtraBoldItalic.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Open_Sans\OpenSans-Italic.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Open_Sans\OpenSans-Light.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Open_Sans\OpenSans-LightItalic.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Open_Sans\OpenSans-Regular.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Open_Sans\OpenSans-SemiBold.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Open_Sans\OpenSans-SemiBoldItalic.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Roboto\LICENSE.txt">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Roboto\Roboto-Black.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Roboto\Roboto-BlackItalic.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Roboto\Roboto-Bold.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Roboto\Roboto-BoldItalic.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Roboto\Roboto-Italic.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Roboto\Roboto-Light.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Roboto\Roboto-LightItalic.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Roboto\Roboto-Medium.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Roboto\Roboto-MediumItalic.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Roboto\Roboto-Regular.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Roboto\Roboto-Thin.ttf">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="Fonts\Roboto\Roboto-ThinItalic.ttf">
     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
   </None>
   <None Update="logo.jpg">
@@ -82,5 +169,8 @@
   <None Update="Views\MiscWatermark\Configure.cshtml">
     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
   </None>
+</ItemGroup>
+<ItemGroup>
+  <Folder Include="Fonts\" />
 </ItemGroup>
 </Project>

@@ -2,25 +2,25 @@
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Microsoft.AspNetCore.Http;
 using Nop.Core;
 using Nop.Core.Data;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Media;
 using Nop.Core.Infrastructure;
 using Nop.Data;
+using Nop.Plugin.Misc.Watermark.Infrastructure;
 using Nop.Services.Catalog;
 using Nop.Services.Configuration;
 using Nop.Services.Events;
 using Nop.Services.Logging;
+using Nop.Services.Media;
 using Nop.Services.Plugins;
 using Nop.Services.Seo;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Processing.Drawing;
-using SixLabors.ImageSharp.Processing.Text;
-using SixLabors.ImageSharp.Processing.Transforms;
 using SixLabors.Primitives;
 using FontStyle = SixLabors.Fonts.FontStyle;
 using PointF = SixLabors.Primitives.PointF;
@@ -35,15 +35,13 @@ namespace Nop.Plugin.Misc.Watermark.Services
         private readonly IRepository<ProductPicture> _productPictureRepository;
         private readonly IRepository<Category> _categoryRepository;
         private readonly IRepository<Manufacturer> _manufacturerRepository;
-        private readonly IPluginFinder _pluginFinder;
+        private readonly IPluginService _pluginService;
+        private readonly CustomFonts _customFonts;
         private readonly ISettingService _settingService;
         private readonly IStoreContext _storeContext;
         private readonly Lazy<Image<Rgba32>> _watermarkImage;
 
-        private bool IsPluginInstalled
-        {
-            get { return _pluginFinder.GetPluginDescriptorBySystemName("Misc.Watermark") != null; }
-        }
+        private bool IsPluginInstalled => _pluginService.GetPluginDescriptorBySystemName<WatermarkPlugin>("Misc.Watermark", LoadPluginsMode.InstalledOnly) != null;
 
         public MiscWatermarkPictureService(
             IRepository<Picture> pictureRepository,
@@ -57,14 +55,19 @@ namespace Nop.Plugin.Misc.Watermark.Services
             MediaSettings mediaSettings,
             IDataProvider dataProvider,
             IStoreContext storeContext,
-            IPluginFinder pluginFinder,
             INopFileProvider fileProvider,
             IProductAttributeParser productAttributeParser,
             IRepository<PictureBinary> pictureBinaryRepository,
-            IUrlRecordService urlRecordService)
+            IUrlRecordService urlRecordService,
+            IDownloadService downloadService,
+            IHttpContextAccessor httpContextAccessor,
+            IPluginService pluginService,
+            CustomFonts customFonts)
             : base(dataProvider,
                 dbContext,
+                downloadService,
                 eventPublisher,
+                httpContextAccessor,
                 fileProvider,
                 productAttributeParser,
                 pictureRepository,
@@ -81,20 +84,19 @@ namespace Nop.Plugin.Misc.Watermark.Services
             _settingService = settingService;
 
             _storeContext = storeContext;
-            _pluginFinder = pluginFinder;
+            _pluginService = pluginService;
+            _customFonts = customFonts;
 
             _watermarkImage = new Lazy<Image<Rgba32>>(() =>
             {
-                if (IsPluginInstalled)
+                int watermarkPictureId = GetSettings().PictureId;
+                if (watermarkPictureId != 0)
                 {
-                    int watermarkPictureId = GetSettings().PictureId;
-                    if (watermarkPictureId != 0)
-                    {
-                        Picture picture = base.GetPictureById(watermarkPictureId);
-                        byte[] pictureBinary = LoadPictureBinary(picture);
-                        return Image.Load(pictureBinary);
-                    }
+                    Picture picture = base.GetPictureById(watermarkPictureId);
+                    byte[] pictureBinary = LoadPictureBinary(picture);
+                    return Image.Load(pictureBinary);
                 }
+
                 return null;
             });
         }
@@ -265,7 +267,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
             foreach (var position in currentSettings.PictureSettings.PositionList)
             {
                 Point watermarkPosition = CalculateWatermarkPosition(position, destImage.Size(), calculatedWatermarkSize);
-                destImage.Mutate(d => d.DrawImage(watermarkImage, (float)currentSettings.PictureSettings.Opacity, watermarkPosition));
+                destImage.Mutate(d => d.DrawImage(watermarkImage, watermarkPosition, (float)currentSettings.PictureSettings.Opacity));
             }
         }
 
@@ -278,8 +280,8 @@ namespace Nop.Plugin.Misc.Watermark.Services
                 (int)(sourceBitmap.Width * sizeFactor),
                 (int)(sourceBitmap.Height * sizeFactor));
 
-            int fontSize = ComputeMaxFontSize(text, textAngle, currentSettings.WatermarkFont, maxTextSize);
-            Font font = SystemFonts.CreateFont(currentSettings.WatermarkFont, (float)fontSize, FontStyle.Bold);
+            int fontSize = ComputeMaxFontSize(currentSettings, text, textAngle, maxTextSize);
+            Font font = CreateFont(currentSettings, (float)fontSize);
             SizeF originalTextSize = TextMeasurer.Measure(text, new RendererOptions(font));
 
             using (var textImage = new Image<Rgba32>((int) originalTextSize.Width, (int) originalTextSize.Height))
@@ -295,16 +297,16 @@ namespace Nop.Plugin.Misc.Watermark.Services
                 foreach (var position in currentSettings.TextSettings.PositionList)
                 {
                     Point textPosition = CalculateWatermarkPosition(position, sourceBitmap.Size(), textImage.Size());
-                    sourceBitmap.Mutate(s => s.DrawImage(textImage, 1, textPosition));
+                    sourceBitmap.Mutate(s => s.DrawImage(textImage, textPosition, 1));
                 }
             }
         }
 
-        private int ComputeMaxFontSize(string text, int angle, string fontName, Size maxTextSize)
+        private int ComputeMaxFontSize(WatermarkSettings settings, string text, int angle, Size maxTextSize)
         {
             for (int fontSize = 2; ; fontSize++)
             {
-                Font tmpFont = SystemFonts.CreateFont(fontName, fontSize, FontStyle.Bold);
+                Font tmpFont = CreateFont(settings, fontSize);
                 SizeF textSize = TextMeasurer.Measure(text, new RendererOptions(tmpFont));
                 SizeF rotatedTextSize = CalculateRotatedRectSize(textSize, angle);
                 if (((int)rotatedTextSize.Width > maxTextSize.Width) ||
@@ -413,6 +415,20 @@ namespace Nop.Plugin.Misc.Watermark.Services
                     break;
             }
             return position;
+        }
+
+        private Font CreateFont(WatermarkSettings settings, float fontSize, FontStyle fontStyle = FontStyle.Bold)
+        {
+            if (settings.WatermarkFont.Contains(_customFonts.CustomFontPrefix))
+            {
+                string fontNameWithoutPrefix =
+                    settings.WatermarkFont.Substring(_customFonts.CustomFontPrefix.Length);
+                return _customFonts.FontCollection().CreateFont(fontNameWithoutPrefix, fontSize, fontStyle);
+            }
+            else
+            {
+                return SystemFonts.CreateFont(settings.WatermarkFont, fontSize, fontStyle);
+            }
         }
 
         #region IDisposable

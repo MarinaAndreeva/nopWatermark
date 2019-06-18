@@ -7,13 +7,13 @@ using Nop.Core.Caching;
 using Nop.Core.Domain.Localization;
 using Nop.Core.Infrastructure;
 using Nop.Core.Domain.Media;
-using Nop.Core.Plugins;
 using Nop.Services.Caching;
 using Nop.Services.Common;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Media;
 using Nop.Plugin.Misc.Watermark.Infrastructure;
+using Nop.Services.Plugins;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace Nop.Plugin.Misc.Watermark
@@ -112,10 +112,9 @@ namespace Nop.Plugin.Misc.Watermark
             {
                 using (var sr = new StreamReader(defaultLocaleFile.OpenRead(), Encoding.UTF8))
                 {
-                    string content = sr.ReadToEnd();
                     foreach (var language in _languageService.GetAllLanguages(true))
                     {
-                        _localizationService.ImportResourcesFromXml(language, content);
+                        _localizationService.ImportResourcesFromXml(language, sr);
                     }
                 }
             }
@@ -128,12 +127,11 @@ namespace Nop.Plugin.Misc.Watermark
                 {
                     using (var sr = new StreamReader(file, Encoding.UTF8))
                     {
-                        string content = sr.ReadToEnd();
                         Language language = _languageService.GetAllLanguages(true)
                             .FirstOrDefault(x => x.UniqueSeoCode == langCode);
                         if (language != null)
                         {
-                            _localizationService.ImportResourcesFromXml(language, content);
+                            _localizationService.ImportResourcesFromXml(language, sr);
                         }
                     }
                 }
