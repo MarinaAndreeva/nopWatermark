@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Text;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Hosting;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
@@ -12,12 +8,13 @@ using Nop.Core.Caching;
 using Nop.Core.Infrastructure;
 using Nop.Plugin.Misc.Watermark.Infrastructure;
 using Nop.Plugin.Misc.Watermark.Models;
+using Nop.Plugin.Misc.Watermark.Services;
 using Nop.Services.Caching;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
+using Nop.Services.Media;
 using Nop.Services.Messages;
 using Nop.Services.Security;
-using Nop.Services.Stores;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
 using SixLabors.ImageSharp.PixelFormats;
@@ -36,7 +33,6 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
         private readonly INotificationService _notificationService;
 
         public MiscWatermarkController(
-            IStoreService storeService,
             IPermissionService permissionService,
             ILocalizationService localizationService,
             INotificationService notificationService,
@@ -144,7 +140,7 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
         }
 
         [HttpPost]
-        public IActionResult Configure(ConfigurationModel model)
+        public async Task<IActionResult> Configure(ConfigurationModel model)
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManagePlugins))
                 return AccessDeniedView();
@@ -217,9 +213,9 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
             _settingService.SaveSettingOverridablePerStore(settings,
                 x => x.MinimumImageWidthForWatermark, model.WatermarkMinimumImageWidthForWatermark_OverrideForStore, activeStoreScope, false);
 
-            //_settingService.ClearCache();
             new ClearCacheTask(EngineContext.Current.Resolve<IStaticCacheManager>()).Execute();
-            Utils.ClearThumbsDirectory();
+            if (EngineContext.Current.Resolve<IPictureService>() is MiscWatermarkPictureService pictureService)
+                await pictureService.DeleteThumbs();
 
             _notificationService.SuccessNotification(_localizationService.GetResource("Admin.Plugins.Saved"));
 

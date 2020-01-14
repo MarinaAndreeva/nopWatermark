@@ -15,7 +15,14 @@ namespace Nop.Plugin.Misc.Watermark.Infrastructure
         public virtual void Register(ContainerBuilder builder, ITypeFinder typeFinder, NopConfig config)
         {
             builder.RegisterType<MiscWatermarkController>().WithParameter(ResolvedParameter.ForNamed<ICacheManager>("nop_cache_static"));
-            builder.RegisterType<MiscWatermarkPictureService>().As<IPictureService>().InstancePerLifetimeScope();
+            if (config.AzureBlobStorageEnabled)
+            {
+                builder.RegisterType<MiscWatermarkAzurePictureService>().As<IPictureService>().InstancePerLifetimeScope();
+            }
+            else
+            {
+                builder.RegisterType<MiscWatermarkPictureService>().As<IPictureService>().InstancePerLifetimeScope();
+            }
             builder.RegisterType<CustomFonts>().SingleInstance();
         }
 

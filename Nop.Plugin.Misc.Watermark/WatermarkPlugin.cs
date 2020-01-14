@@ -13,6 +13,7 @@ using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Media;
 using Nop.Plugin.Misc.Watermark.Infrastructure;
+using Nop.Plugin.Misc.Watermark.Services;
 using Nop.Services.Plugins;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -98,7 +99,8 @@ namespace Nop.Plugin.Misc.Watermark
             _settingService.ClearCache();
 
             new ClearCacheTask(EngineContext.Current.Resolve<IStaticCacheManager>()).Execute();
-            Utils.ClearThumbsDirectory();
+            if (EngineContext.Current.Resolve<IPictureService>() is MiscWatermarkPictureService pictureService)
+                pictureService.DeleteThumbs().Wait();
 
             base.Uninstall();
         }

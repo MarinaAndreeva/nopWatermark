@@ -2,6 +2,8 @@
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Nop.Core;
 using Nop.Core.Data;
@@ -99,6 +101,17 @@ namespace Nop.Plugin.Misc.Watermark.Services
 
                 return null;
             });
+        }
+
+        public virtual Task DeleteThumbs()
+        {
+            string defaultThumbsPath = Path.Combine(EngineContext.Current.Resolve<IHostingEnvironment>().
+                WebRootPath, Path.Combine("images", "thumbs"));
+            var imageDirectoryInfo = new DirectoryInfo(defaultThumbsPath);
+            foreach (var fileInfo in imageDirectoryInfo.GetFiles())
+                fileInfo.Delete();
+
+            return Task.CompletedTask;
         }
 
         public override string GetPictureUrl(Picture picture,
