@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Text;
 using System.Linq;
-using Microsoft.AspNetCore.Hosting;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
@@ -11,12 +10,13 @@ using Nop.Core.Caching;
 using Nop.Core.Infrastructure;
 using Nop.Plugin.Misc.Watermark.Infrastructure;
 using Nop.Plugin.Misc.Watermark.Models;
+using Nop.Plugin.Misc.Watermark.Services;
 using Nop.Services.Caching;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
+using Nop.Services.Media;
 using Nop.Services.Security;
 using Nop.Services.Stores;
-using Nop.Web.Areas.Admin.Controllers;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
 
@@ -30,27 +30,28 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
         private readonly IStoreService _storeService;
         private readonly IPermissionService _permissionService;
         private readonly IWorkContext _workContext;
+        private readonly CustomFonts _customFonts;
 
         public MiscWatermarkController(
             IWorkContext workContext,
             IStoreService storeService,
             IPermissionService permissionService,
             ILocalizationService localizationService,
-            ISettingService settingService)
+            ISettingService settingService,
+            CustomFonts customFonts)
         {
             _workContext = workContext;
             _storeService = storeService;
             _localizationService = localizationService;
             _settingService = settingService;
             _permissionService = permissionService;
+            _customFonts = customFonts;
         }
 
         public IActionResult Configure()
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManagePlugins))
                 return AccessDeniedView();
-
-            List<string> availableFonts = GetAvailableFontNames();
 
             int activeStoreScope = GetActiveStoreScopeConfiguration(_storeService, _workContext);
             WatermarkSettings settings = _settingService.LoadSetting<WatermarkSettings>(activeStoreScope);
@@ -59,7 +60,7 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
             {
                 WatermarkTextEnable = settings.WatermarkTextEnable,
                 WatermarkText = settings.WatermarkText,
-                AvailableFontsList = availableFonts.Select(s => new SelectListItem {Text = s, Value = s}).ToList(),
+                AvailableFontsList = GetAvailableFontNames(),
                 WatermarkFont = settings.WatermarkFont,
                 TextColor = $"{settings.TextColor.R:X2}{settings.TextColor.G:X2}{settings.TextColor.B:X2}",
                 TextSettings = new CommonWatermarkSettings
@@ -135,7 +136,7 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
         }
 
         [HttpPost]
-        public IActionResult Configure(ConfigurationModel model)
+        public async Task<IActionResult> Configure(ConfigurationModel model)
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManagePlugins))
                 return AccessDeniedView();
@@ -210,7 +211,8 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
 
             //_settingService.ClearCache();
             new ClearCacheTask(EngineContext.Current.Resolve<IStaticCacheManager>()).Execute();
-            Utils.ClearThumbsDirectory();
+            if (EngineContext.Current.Resolve<IPictureService>() is MiscWatermarkPictureService pictureService)
+                await pictureService.DeleteThumbs();
 
             SuccessNotification(_localizationService.GetResource("Admin.Plugins.Saved"));
 
@@ -241,10 +243,17 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
             return positionList;
         }
 
-        private static List<string> GetAvailableFontNames()
+        private List<SelectListItem> GetAvailableFontNames()
         {
-            var fonts = new InstalledFontCollection();
-            return fonts.Families.Select(f => f.Name).ToList();
+            var customFontsCollection = _customFonts.FontCollection();
+            var systemFontsCollection = new InstalledFontCollection();
+            IEnumerable<string> systemFonts = systemFontsCollection.Families.Select(f => f.Name);
+            IEnumerable<string> customFonts = customFontsCollection.Families.Select(f => f.Name);
+            SelectListGroup customGroup = new SelectListGroup { Name = "Custom" };
+            SelectListGroup systemGroup = new SelectListGroup { Name = "System" };
+            return customFonts.Select(s => new SelectListItem { Text = s, Value = _customFonts.CustomFontPrefix + s, Group = customGroup })
+                .Concat(systemFonts.Select(s => new SelectListItem { Text = s, Value = s, Group = systemGroup }))
+                .ToList();
         }
     }
 }

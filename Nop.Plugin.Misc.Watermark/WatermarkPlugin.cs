@@ -4,7 +4,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Microsoft.AspNetCore.Hosting;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Localization;
@@ -16,7 +15,7 @@ using Nop.Services.Common;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Media;
-using Nop.Plugin.Misc.Watermark.Infrastructure;
+using Nop.Plugin.Misc.Watermark.Services;
 
 namespace Nop.Plugin.Misc.Watermark
 {
@@ -98,7 +97,8 @@ namespace Nop.Plugin.Misc.Watermark
             _settingService.ClearCache();
 
             new ClearCacheTask(EngineContext.Current.Resolve<IStaticCacheManager>()).Execute();
-            Utils.ClearThumbsDirectory();
+            if (EngineContext.Current.Resolve<IPictureService>() is MiscWatermarkPictureService pictureService)
+                pictureService.DeleteThumbs().Wait();
 
             base.Uninstall();
         }

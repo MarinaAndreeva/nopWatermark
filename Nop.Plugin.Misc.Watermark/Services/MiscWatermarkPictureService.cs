@@ -6,12 +6,14 @@ using System.Drawing.Text;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using ImageResizer;
 using Microsoft.AspNetCore.Hosting;
 using Nop.Core;
 using Nop.Core.Data;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Media;
+using Nop.Core.Infrastructure;
 using Nop.Core.Plugins;
 using Nop.Data;
 using Nop.Plugin.Misc.Watermark.Infrastructure;
@@ -32,6 +34,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
         private readonly IStoreContext _storeContext;
         private readonly ILogger _logger;
         private readonly Lazy<Bitmap> _watermarkBitmap;
+        private readonly CustomFonts _customFonts;
 
         private bool IsPluginInstalled
         {
@@ -52,7 +55,8 @@ namespace Nop.Plugin.Misc.Watermark.Services
             IDataProvider dataProvider,
             IStoreContext storeContext,
             IPluginFinder pluginFinder,
-            IHostingEnvironment hostingEnvironment)
+            IHostingEnvironment hostingEnvironment,
+            CustomFonts customFonts)
             : base(pictureRepository,
                 productPictureRepository,
                 settingService,
@@ -70,6 +74,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
             _settingService = settingService;
             _logger = logger;
             _mediaSettings = mediaSettings;
+            _customFonts = customFonts;
 
             _storeContext = storeContext;
             _pluginFinder = pluginFinder;
@@ -91,6 +96,17 @@ namespace Nop.Plugin.Misc.Watermark.Services
                 }
                 return null;
             });
+        }
+
+        public virtual Task DeleteThumbs()
+        {
+            string defaultThumbsPath = Path.Combine(EngineContext.Current.Resolve<IHostingEnvironment>().
+                WebRootPath, Path.Combine("images", "thumbs"));
+            var imageDirectoryInfo = new DirectoryInfo(defaultThumbsPath);
+            foreach (var fileInfo in imageDirectoryInfo.GetFiles())
+                fileInfo.Delete();
+
+            return Task.CompletedTask;
         }
 
         public override string GetPictureUrl(Picture picture,
@@ -331,9 +347,9 @@ namespace Nop.Plugin.Misc.Watermark.Services
                     (int)(sourceBitmap.Width * sizeFactor),
                     (int)(sourceBitmap.Height * sizeFactor));
                 
-                int fontSize = ComputeMaxFontSize(text, textAngle, currentSettings.WatermarkFont, maxTextSize, g);
+                int fontSize = ComputeMaxFontSize(currentSettings, text, textAngle, maxTextSize, g);
                 
-                Font font = new Font(currentSettings.WatermarkFont, (float)fontSize, FontStyle.Bold);
+                Font font = CreateFont(currentSettings, fontSize);
                 SizeF originalTextSize = g.MeasureString(text, font);
                 SizeF rotatedTextSize = CalculateRotatedRectSize(originalTextSize, textAngle);
                 
@@ -364,19 +380,17 @@ namespace Nop.Plugin.Misc.Watermark.Services
             }
         }
 
-        private int ComputeMaxFontSize(string text, int angle, string fontName, Size maxTextSize, Graphics g)
+        private int ComputeMaxFontSize(WatermarkSettings settings, string text, int angle, Size maxTextSize, Graphics g)
         {
             for (int fontSize = 2; ; fontSize++)
             {
-                using (Font tmpFont = new Font(fontName, fontSize, FontStyle.Bold))
+                Font tmpFont = CreateFont(settings, fontSize);
+                SizeF textSize = g.MeasureString(text, tmpFont);
+                SizeF rotatedTextSize = CalculateRotatedRectSize(textSize, angle);
+                if (((int)rotatedTextSize.Width > maxTextSize.Width) ||
+                    ((int)rotatedTextSize.Height > maxTextSize.Height))
                 {
-                    SizeF textSize = g.MeasureString(text, tmpFont);
-                    SizeF rotatedTextSize = CalculateRotatedRectSize(textSize, angle);
-                    if (((int)rotatedTextSize.Width > maxTextSize.Width) ||
-                        ((int)rotatedTextSize.Height > maxTextSize.Height))
-                    {
-                        return fontSize - 1;
-                    }
+                    return fontSize - 1;
                 }
             }
         }
@@ -491,6 +505,21 @@ namespace Nop.Plugin.Misc.Watermark.Services
                     break;
             }
             return position;
+        }
+
+        private Font CreateFont(WatermarkSettings settings, float fontSize, FontStyle fontStyle = FontStyle.Bold)
+        {
+            if (settings.WatermarkFont.Contains(_customFonts.CustomFontPrefix))
+            {
+                string fontNameWithoutPrefix =
+                    settings.WatermarkFont.Substring(_customFonts.CustomFontPrefix.Length);
+                var fontFamily = _customFonts.FontCollection().Families
+                    .FirstOrDefault(n => n.Name == fontNameWithoutPrefix);
+                if (fontFamily != null)
+                    return new Font(fontFamily, fontSize, fontStyle);
+            }
+
+            return new Font(settings.WatermarkFont, fontSize, fontStyle);
         }
 
         #region IDisposable
