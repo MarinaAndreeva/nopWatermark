@@ -2,12 +2,15 @@
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Nop.Core;
 using Nop.Core.Data;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Media;
 using Nop.Core.Infrastructure;
 using Nop.Data;
+using Nop.Plugin.Misc.Watermark.Infrastructure;
 using Nop.Services.Catalog;
 using Nop.Services.Configuration;
 using Nop.Services.Events;
@@ -36,6 +39,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
         private readonly IRepository<Category> _categoryRepository;
         private readonly IRepository<Manufacturer> _manufacturerRepository;
         private readonly IPluginFinder _pluginFinder;
+        private readonly CustomFonts _customFonts;
         private readonly ISettingService _settingService;
         private readonly IStoreContext _storeContext;
         private readonly Lazy<Image<Rgba32>> _watermarkImage;
@@ -61,7 +65,8 @@ namespace Nop.Plugin.Misc.Watermark.Services
             INopFileProvider fileProvider,
             IProductAttributeParser productAttributeParser,
             IRepository<PictureBinary> pictureBinaryRepository,
-            IUrlRecordService urlRecordService)
+            IUrlRecordService urlRecordService,
+            CustomFonts customFonts)
             : base(dataProvider,
                 dbContext,
                 eventPublisher,
@@ -82,6 +87,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
 
             _storeContext = storeContext;
             _pluginFinder = pluginFinder;
+            _customFonts = customFonts;
 
             _watermarkImage = new Lazy<Image<Rgba32>>(() =>
             {
@@ -97,6 +103,16 @@ namespace Nop.Plugin.Misc.Watermark.Services
                 }
                 return null;
             });
+        }
+        public virtual Task DeleteThumbs()
+        {
+            string defaultThumbsPath = Path.Combine(EngineContext.Current.Resolve<IHostingEnvironment>().
+                WebRootPath, Path.Combine("images", "thumbs"));
+            var imageDirectoryInfo = new DirectoryInfo(defaultThumbsPath);
+            foreach (var fileInfo in imageDirectoryInfo.GetFiles())
+                fileInfo.Delete();
+
+            return Task.CompletedTask;
         }
 
         public override string GetPictureUrl(Picture picture,
@@ -278,8 +294,8 @@ namespace Nop.Plugin.Misc.Watermark.Services
                 (int)(sourceBitmap.Width * sizeFactor),
                 (int)(sourceBitmap.Height * sizeFactor));
 
-            int fontSize = ComputeMaxFontSize(text, textAngle, currentSettings.WatermarkFont, maxTextSize);
-            Font font = SystemFonts.CreateFont(currentSettings.WatermarkFont, (float)fontSize, FontStyle.Bold);
+            int fontSize = ComputeMaxFontSize(currentSettings, text, textAngle, maxTextSize);
+            Font font = CreateFont(currentSettings, (float)fontSize);
             SizeF originalTextSize = TextMeasurer.Measure(text, new RendererOptions(font));
 
             using (var textImage = new Image<Rgba32>((int) originalTextSize.Width, (int) originalTextSize.Height))
@@ -300,11 +316,11 @@ namespace Nop.Plugin.Misc.Watermark.Services
             }
         }
 
-        private int ComputeMaxFontSize(string text, int angle, string fontName, Size maxTextSize)
+        private int ComputeMaxFontSize(WatermarkSettings settings, string text, int angle, Size maxTextSize)
         {
             for (int fontSize = 2; ; fontSize++)
             {
-                Font tmpFont = SystemFonts.CreateFont(fontName, fontSize, FontStyle.Bold);
+                Font tmpFont = CreateFont(settings, fontSize);
                 SizeF textSize = TextMeasurer.Measure(text, new RendererOptions(tmpFont));
                 SizeF rotatedTextSize = CalculateRotatedRectSize(textSize, angle);
                 if (((int)rotatedTextSize.Width > maxTextSize.Width) ||
@@ -413,6 +429,20 @@ namespace Nop.Plugin.Misc.Watermark.Services
                     break;
             }
             return position;
+        }
+
+        private Font CreateFont(WatermarkSettings settings, float fontSize, FontStyle fontStyle = FontStyle.Bold)
+        {
+            if (settings.WatermarkFont.Contains(_customFonts.CustomFontPrefix))
+            {
+                string fontNameWithoutPrefix =
+                    settings.WatermarkFont.Substring(_customFonts.CustomFontPrefix.Length);
+                return _customFonts.FontCollection().CreateFont(fontNameWithoutPrefix, fontSize, fontStyle);
+            }
+            else
+            {
+                return SystemFonts.CreateFont(settings.WatermarkFont, fontSize, fontStyle);
+            }
         }
 
         #region IDisposable
