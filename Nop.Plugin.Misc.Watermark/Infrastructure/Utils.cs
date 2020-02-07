@@ -1,23 +1,13 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using Nop.Core;
 using Nop.Core.Infrastructure;
 
 namespace Nop.Plugin.Misc.Watermark.Infrastructure
 {
     public static class Utils
     {
-        public static void ClearThumbsDirectory()
-        {
-            string defaultThumbsPath = EngineContext.Current.Resolve<IWebHelper>().MapPath("~/content/images/thumbs");
-            var imageDirectoryInfo = new DirectoryInfo(defaultThumbsPath);
-            foreach (var fileInfo in imageDirectoryInfo.GetFiles())
-                fileInfo.Delete();
-        }
-
         public static byte[] ConvertImageToByteArray(Image image, ImageFormat imageFormat, int jpegQuality)
         {
             using (var ms = new MemoryStream())
