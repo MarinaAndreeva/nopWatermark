@@ -94,7 +94,7 @@ namespace Nop.Plugin.Misc.Watermark
             }
 
             _settingService.DeleteSetting<WatermarkSettings>();
-            DeleteLocaleResources();
+            _localizationService.DeletePluginLocaleResources("Plugins.Misc.Watermark.");
 
             _settingService.ClearCache();
 
@@ -136,19 +136,6 @@ namespace Nop.Plugin.Misc.Watermark
                             _localizationService.ImportResourcesFromXml(language, sr);
                         }
                     }
-                }
-            }
-        }
-
-        private void DeleteLocaleResources()
-        {
-            foreach (var lang in _languageService.GetAllLanguages(true))
-            {
-                var localeStringResources = _localizationService.GetAllResources(lang.Id)
-                    .Where(x => x.ResourceName.StartsWith("Plugins.Misc.Watermark."));
-                foreach (LocaleStringResource lsr in localeStringResources)
-                {
-                    _localizationService.DeleteLocaleStringResource(lsr);
                 }
             }
         }

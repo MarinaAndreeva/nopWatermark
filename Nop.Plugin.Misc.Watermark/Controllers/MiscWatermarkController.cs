@@ -18,7 +18,6 @@ using Nop.Services.Security;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
 using SixLabors.ImageSharp.PixelFormats;
-using FontCollection = SixLabors.Fonts.FontCollection;
 
 namespace Nop.Plugin.Misc.Watermark.Controllers
 {
@@ -159,7 +158,8 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
             settings.WatermarkFont = model.WatermarkFont;
             if (model.TextColor != null)
             {
-                settings.TextColor = ColorBuilder<Rgba32>.FromHex(model.TextColor).ToRgb24Hex();
+                Rgba32.TryParseHex(model.TextColor, out var color);
+                settings.TextColor = color.ToRgb24Hex();
             }
             settings.TextRotatedDegree = model.TextRotatedDegree;
             if (model.TextSettings != null)

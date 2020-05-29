@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 <PropertyGroup>
-<TargetFramework>netcoreapp2.2</TargetFramework>
+<TargetFramework>netcoreapp3.1</TargetFramework>
 <Version>1.0.9</Version>
 <Copyright>Copyright © Marina Andreeva 2018</Copyright>
 <Company>Marina Andreeva</Company>
@@ -25,16 +25,6 @@
   <Content Include="Views\MiscWatermark\_ViewImports.cshtml">
     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
   </Content>
-</ItemGroup>
-<ItemGroup>
-  <PackageReference Include="SixLabors.Fonts" Version="1.0.0-beta0008" />
-  <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
-  <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0006" />
-</ItemGroup>
-<ItemGroup>
-  <ProjectReference Include="..\..\..\Presentation\Nop.Web.Framework\Nop.Web.Framework.csproj">
-    <Private>false</Private>
-  </ProjectReference>
 </ItemGroup>
 <ItemGroup>
   <None Update="Content\defaultWatermarkPicture.png">
@@ -160,17 +150,19 @@
   <None Update="SixLabors.ImageSharp.Drawing.dll">
     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
   </None>
-  <None Update="SixLabors.Shapes.dll">
-    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-  </None>
-  <None Update="SixLabors.Shapes.Text.dll">
-    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-  </None>
   <None Update="Views\MiscWatermark\Configure.cshtml">
     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
   </None>
 </ItemGroup>
 <ItemGroup>
   <Folder Include="Fonts\" />
+</ItemGroup>
+<ItemGroup>
+  <PackageReference Include="SixLabors.Fonts" Version="1.0.0-beta0011" />
+  <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-rc0001" />
+  <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0008" />
+</ItemGroup>
+<ItemGroup>
+  <ProjectReference Include="..\..\..\Presentation\Nop.Web.Framework\Nop.Web.Framework.csproj" />
 </ItemGroup>
 </Project>

@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Nop.Core;
-using Nop.Core.Data;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Media;
 using Nop.Core.Infrastructure;
 using Nop.Data;
 using Nop.Plugin.Misc.Watermark.Infrastructure;
+using Nop.Services.Caching;
 using Nop.Services.Catalog;
 using Nop.Services.Configuration;
 using Nop.Services.Events;
@@ -21,13 +21,13 @@ using Nop.Services.Plugins;
 using Nop.Services.Seo;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using SixLabors.Primitives;
 using FontStyle = SixLabors.Fonts.FontStyle;
-using PointF = SixLabors.Primitives.PointF;
-using Size = SixLabors.Primitives.Size;
-using SizeF = SixLabors.Primitives.SizeF;
+using PointF = SixLabors.ImageSharp.PointF;
+using Size = SixLabors.ImageSharp.Size;
+using SizeF = SixLabors.ImageSharp.SizeF;
 using SystemFonts = SixLabors.Fonts.SystemFonts;
 
 namespace Nop.Plugin.Misc.Watermark.Services
@@ -38,10 +38,12 @@ namespace Nop.Plugin.Misc.Watermark.Services
         private readonly IRepository<Category> _categoryRepository;
         private readonly IRepository<Manufacturer> _manufacturerRepository;
         private readonly IPluginService _pluginService;
+        private readonly INopFileProvider _fileProvider;
         private readonly CustomFonts _customFonts;
         private readonly ISettingService _settingService;
         private readonly IStoreContext _storeContext;
         private readonly Lazy<Image<Rgba32>> _watermarkImage;
+        
 
         private bool IsPluginInstalled => _pluginService.GetPluginDescriptorBySystemName<WatermarkPlugin>("Misc.Watermark", LoadPluginsMode.InstalledOnly) != null;
 
@@ -52,10 +54,10 @@ namespace Nop.Plugin.Misc.Watermark.Services
             IRepository<ProductPicture> productPictureRepository,
             ISettingService settingService,
             IWebHelper webHelper,
-            IDbContext dbContext,
+            ICacheKeyService cacheKeyService,
             IEventPublisher eventPublisher,
             MediaSettings mediaSettings,
-            IDataProvider dataProvider,
+            INopDataProvider dataProvider,
             IStoreContext storeContext,
             INopFileProvider fileProvider,
             IProductAttributeParser productAttributeParser,
@@ -66,7 +68,6 @@ namespace Nop.Plugin.Misc.Watermark.Services
             IPluginService pluginService,
             CustomFonts customFonts)
             : base(dataProvider,
-                dbContext,
                 downloadService,
                 eventPublisher,
                 httpContextAccessor,
@@ -84,6 +85,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
             _manufacturerRepository = manufacturerRepository;
             _productPictureRepository = productPictureRepository;
             _settingService = settingService;
+            _fileProvider = fileProvider;
 
             _storeContext = storeContext;
             _pluginService = pluginService;
@@ -105,8 +107,9 @@ namespace Nop.Plugin.Misc.Watermark.Services
 
         public virtual Task DeleteThumbs()
         {
-            string defaultThumbsPath = Path.Combine(EngineContext.Current.Resolve<IHostingEnvironment>().
-                WebRootPath, Path.Combine("images", "thumbs"));
+            string defaultThumbsPath =
+                _fileProvider.GetAbsolutePath(NopMediaDefaults.ImageThumbsPath);
+
             var imageDirectoryInfo = new DirectoryInfo(defaultThumbsPath);
             foreach (var fileInfo in imageDirectoryInfo.GetFiles())
                 fileInfo.Delete();
@@ -114,7 +117,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
             return Task.CompletedTask;
         }
 
-        public override string GetPictureUrl(Picture picture,
+        public override string GetPictureUrl(ref Picture picture,
             int targetSize = 0,
             bool showDefaultPicture = true,
             string storeLocation = null,
@@ -122,7 +125,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
         {
             if (!IsPluginInstalled)
             {
-                return base.GetPictureUrl(picture, targetSize, showDefaultPicture, storeLocation, defaultPictureType);
+                return base.GetPictureUrl(ref picture, targetSize, showDefaultPicture, storeLocation, defaultPictureType);
             }
 
             string url = string.Empty;
@@ -210,7 +213,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
                             using (var stream = new MemoryStream(pictureBinary))
                             {
                                 //resizing required
-                                using (var originImage = Image.Load(pictureBinary, out var imageFormat))
+                                using (var originImage = Image.Load<Rgba32>(pictureBinary, out var imageFormat))
                                 {
                                     originImage.Mutate(imageProcess => imageProcess.Resize(new ResizeOptions
                                     {
@@ -224,7 +227,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
                         }
                         else
                         {
-                            using (var originImage = Image.Load(pictureBinary, out var imageFormat))
+                            using (var originImage = Image.Load<Rgba32>(pictureBinary, out var imageFormat))
                             {
                                 Image<Rgba32> image = MakeImageWatermark(originImage, picture.Id);
                                 pictureBinaryResized = EncodeImage(image, imageFormat);
@@ -295,15 +298,16 @@ namespace Nop.Plugin.Misc.Watermark.Services
 
             int fontSize = ComputeMaxFontSize(currentSettings, text, textAngle, maxTextSize);
             Font font = CreateFont(currentSettings, (float)fontSize);
-            SizeF originalTextSize = TextMeasurer.Measure(text, new RendererOptions(font));
+            FontRectangle originalTextSize = TextMeasurer.Measure(text, new RendererOptions(font));
 
             using (var textImage = new Image<Rgba32>((int) originalTextSize.Width, (int) originalTextSize.Height))
             {
-                Rgba32 color = ColorBuilder<Rgba32>.FromHex(currentSettings.TextColor);
+                Rgba32.TryParseHex(currentSettings.TextColor, out var color);
                 color.A = (byte)(currentSettings.TextSettings.Opacity * 255);
-                textImage.Mutate(i =>
+                textImage.Mutate<Rgba32>(i =>
                     i
-                        .DrawText(new TextGraphicsOptions(true), text, font, color, new PointF(0, 0))
+                        //.DrawText(new TextGraphicsOptions(true), text, font, color, new PointF(0, 0))
+                        .DrawText(new TextGraphicsOptions(), text, font, color, new PointF(0, 0))
                         .Rotate(textAngle)
                 );
 
@@ -320,7 +324,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
             for (int fontSize = 2; ; fontSize++)
             {
                 Font tmpFont = CreateFont(settings, fontSize);
-                SizeF textSize = TextMeasurer.Measure(text, new RendererOptions(tmpFont));
+                var textSize = TextMeasurer.Measure(text, new RendererOptions(tmpFont));
                 SizeF rotatedTextSize = CalculateRotatedRectSize(textSize, angle);
                 if (((int)rotatedTextSize.Width > maxTextSize.Width) ||
                     ((int)rotatedTextSize.Height > maxTextSize.Height))
@@ -375,7 +379,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
             };
         }
 
-        private static SizeF CalculateRotatedRectSize(SizeF rectSize, double angleDeg)
+        private static SizeF CalculateRotatedRectSize(FontRectangle rectSize, double angleDeg)
         {
             double angleRad = angleDeg * Math.PI / 180;
             double width = rectSize.Height * Math.Abs(Math.Sin(angleRad)) + 

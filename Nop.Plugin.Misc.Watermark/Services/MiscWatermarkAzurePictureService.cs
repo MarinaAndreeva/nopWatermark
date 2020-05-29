@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LinqToDB.DataProvider;
 using Microsoft.AspNetCore.Http;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Configuration;
-using Nop.Core.Data;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Media;
 using Nop.Core.Infrastructure;
 using Nop.Data;
 using Nop.Plugin.Misc.Watermark.Infrastructure;
+using Nop.Services.Caching;
 using Nop.Services.Catalog;
 using Nop.Services.Configuration;
 using Nop.Services.Events;
@@ -31,7 +32,8 @@ namespace Nop.Plugin.Misc.Watermark.Services
         private static string _azureBlobStorageContainerName;
         private static string _azureBlobStorageEndPoint;
 
-        private readonly IStaticCacheManager _cacheManager;
+        private readonly ICacheKeyService _cacheKeyService;
+        private readonly IStaticCacheManager _staticCacheManager;
         private readonly MediaSettings _mediaSettings;
         private readonly object _locker = new object();
 
@@ -42,10 +44,10 @@ namespace Nop.Plugin.Misc.Watermark.Services
             IRepository<ProductPicture> productPictureRepository,
             ISettingService settingService,
             IWebHelper webHelper,
-            IDbContext dbContext,
+            ICacheKeyService cacheKeyService,
             IEventPublisher eventPublisher,
             MediaSettings mediaSettings,
-            IDataProvider dataProvider,
+            INopDataProvider dataProvider,
             IStoreContext storeContext,
             INopFileProvider fileProvider,
             IProductAttributeParser productAttributeParser,
@@ -55,7 +57,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
             IHttpContextAccessor httpContextAccessor,
             IPluginService pluginService,
             CustomFonts customFonts,
-            IStaticCacheManager cacheManager,
+            IStaticCacheManager staticCacheManager,
             NopConfig config)
             : base(pictureRepository,
                 categoryRepository,
@@ -63,7 +65,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
                 productPictureRepository,
                 settingService,
                 webHelper,
-                dbContext,
+                cacheKeyService,
                 eventPublisher,
                 mediaSettings,
                 dataProvider,
@@ -77,7 +79,8 @@ namespace Nop.Plugin.Misc.Watermark.Services
                 pluginService,
                 customFonts)
         {
-            _cacheManager = cacheManager;
+            _cacheKeyService = cacheKeyService;
+            _staticCacheManager = staticCacheManager;
             _mediaSettings = mediaSettings;
 
             OneTimeInit(config);
@@ -180,15 +183,15 @@ namespace Nop.Plugin.Misc.Watermark.Services
             }
             while (continuationToken != null);
 
-            _cacheManager.RemoveByPrefix(NopMediaDefaults.ThumbsPrefixCacheKey);
+            _staticCacheManager.RemoveByPrefix(NopMediaDefaults.ThumbsExistsPrefixCacheKey);
         }
 
         protected virtual async Task<bool> GeneratedThumbExistsAsync(string thumbFilePath, string thumbFileName)
         {
             try
             {
-                var key = string.Format(NopMediaDefaults.ThumbExistsCacheKey, thumbFileName);
-                return await _cacheManager.GetAsync(key, async () =>
+                var key = _cacheKeyService.PrepareKeyForDefaultCache(NopMediaDefaults.ThumbExistsCacheKey, thumbFileName);
+                return await _staticCacheManager.GetAsync(key, async () =>
                 {
                     //GetBlockBlobReference doesn't need to be async since it doesn't contact the server yet
                     var blockBlob = _container.GetBlockBlobReference(thumbFileName);
@@ -217,7 +220,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
 
             await blockBlob.UploadFromByteArrayAsync(binary, 0, binary.Length);
 
-            _cacheManager.RemoveByPrefix(NopMediaDefaults.ThumbsPrefixCacheKey);
+            _staticCacheManager.RemoveByPrefix(NopMediaDefaults.ThumbsExistsPrefixCacheKey);
         }
 
         public override async Task DeleteThumbs()
@@ -232,7 +235,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
             }
             while (continuationToken != null);
 
-            _cacheManager.RemoveByPrefix(NopMediaDefaults.ThumbsPrefixCacheKey);
+            _staticCacheManager.RemoveByPrefix(NopMediaDefaults.ThumbsExistsPrefixCacheKey);
         }
     }
 }
