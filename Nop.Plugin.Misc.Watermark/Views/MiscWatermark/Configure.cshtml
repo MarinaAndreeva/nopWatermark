@@ -423,3 +423,59 @@
         </div>
     </div>
 </form>
+<script>
+    function checkOverriddenStoreValue(obj, selector) {
+        var elementsArray = selector.split(",");
+
+        // first toggle appropriate hidden inputs for checkboxes
+        if ($(selector).is(':checkbox')) {
+            var name = $(selector).attr('name');
+            $('input:hidden[name="' + name + '"]').attr('disabled', !$(obj).is(':checked'));
+        }
+
+        if (!$(obj).is(':checked')) {
+            $(selector).attr('disabled', true);
+            //Kendo UI elements are enabled/disabled some other way
+            $.each(elementsArray, function (key, value) {
+                var kenoduiElement;
+                if ($(value).length > 1) {
+                    for (let i = 0; i < $(value).length; i++) {
+                        var elem = $(value)[i];
+                        kenoduiElement = $(elem).data("kendoNumericTextBox") || $(value).data("kendoMultiSelect");
+                        if (kenoduiElement !== undefined && kenoduiElement !== null) {
+                            kenoduiElement.enable(false);
+                        }
+                    }
+                } else {
+                    kenoduiElement = $(value).data("kendoNumericTextBox") || $(value).data("kendoMultiSelect");
+                    if (kenoduiElement !== undefined && kenoduiElement !== null) {
+                        kenoduiElement.enable(false);
+                    }
+                }
+                
+            });
+        }
+        else {
+            $(selector).removeAttr('disabled');
+            //Kendo UI elements are enabled/disabled some other way
+            $.each(elementsArray, function (key, value) {
+                var kenoduiElement;
+                if ($(value).length > 1) {
+                    for (let i = 0; i < $(value).length; i++) {
+                        var elem = $(value)[i];
+                        kenoduiElement = $(elem).data("kendoNumericTextBox") || $(value).data("kendoMultiSelect");
+                        if (kenoduiElement !== undefined && kenoduiElement !== null) {
+                            kenoduiElement.enable();
+                        }
+                    }
+                } else {
+                    kenoduiElement = $(value).data("kendoNumericTextBox") || $(value).data("kendoMultiSelect");
+                    if (kenoduiElement !== undefined && kenoduiElement !== null) {
+                        kenoduiElement.enable();
+                    }
+                }
+                
+            });
+        }
+    }
+</script>
