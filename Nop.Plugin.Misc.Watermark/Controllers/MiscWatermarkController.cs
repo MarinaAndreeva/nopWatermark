@@ -17,7 +17,7 @@ using Nop.Services.Messages;
 using Nop.Services.Security;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
-using SixLabors.ImageSharp.PixelFormats;
+using SkiaSharp;
 
 namespace Nop.Plugin.Misc.Watermark.Controllers
 {
@@ -25,7 +25,7 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
     public class MiscWatermarkController : BasePluginController
     {
         private readonly IStoreContext _storeContext;
-        private readonly CustomFonts _customFonts;
+        private readonly FontProvider _fontProvider;
         private readonly ILocalizationService _localizationService;
         private readonly ISettingService _settingService;
         private readonly IPermissionService _permissionService;
@@ -37,23 +37,23 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
             INotificationService notificationService,
             ISettingService settingService,
             IStoreContext storeContext,
-            CustomFonts customFonts)
+            FontProvider fontProvider)
         {
             _localizationService = localizationService;
             _notificationService = notificationService;
             _settingService = settingService;
             _permissionService = permissionService;
             _storeContext = storeContext;
-            _customFonts = customFonts;
+            _fontProvider = fontProvider;
         }
 
-        public IActionResult Configure()
+        public async Task<IActionResult> Configure()
         {
-            if (!_permissionService.Authorize(StandardPermissionProvider.ManagePlugins))
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManagePlugins))
                 return AccessDeniedView();
 
-            int activeStoreScope = _storeContext.ActiveStoreScopeConfiguration;
-            WatermarkSettings settings = _settingService.LoadSetting<WatermarkSettings>(activeStoreScope);
+            var activeStoreScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var settings = await _settingService.LoadSettingAsync<WatermarkSettings>(activeStoreScope);
             var model = new ConfigurationModel
             {
                 WatermarkTextEnable = settings.WatermarkTextEnable,
@@ -101,64 +101,58 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
             };
             //if the selected font is removed from the font catalog
             if (model.AvailableFontsList.All(i => i.Value != model.WatermarkFont))
-            {
-                model.WatermarkFont = "";
-            }
+                model.WatermarkFont = string.Empty;
+
             if (activeStoreScope > 0)
             {
                 model.WatermarkTextEnable_OverrideForStore =
-                    _settingService.SettingExists(settings, x => x.WatermarkTextEnable, activeStoreScope);
+                    await _settingService.SettingExistsAsync(settings, x => x.WatermarkTextEnable, activeStoreScope);
                 model.Text_OverrideForStore =
-                    _settingService.SettingExists(settings, x => x.WatermarkText, activeStoreScope);
+                    await _settingService.SettingExistsAsync(settings, x => x.WatermarkText, activeStoreScope);
                 model.WatermarkFont_OverrideForStore =
-                    _settingService.SettingExists(settings, x => x.WatermarkFont, activeStoreScope);
+                    await _settingService.SettingExistsAsync(settings, x => x.WatermarkFont, activeStoreScope);
                 model.TextColor_OverrideForStore =
-                    _settingService.SettingExists(settings, x => x.TextColor, activeStoreScope);
+                    await _settingService.SettingExistsAsync(settings, x => x.TextColor, activeStoreScope);
                 model.TextSettings_OverrideForStore =
-                    _settingService.SettingExists(settings, x => x.TextSettings, activeStoreScope);
+                    await _settingService.SettingExistsAsync(settings, x => x.TextSettings, activeStoreScope);
                 model.WatermarkTextRotatedDegree_OverrideForStore =
-                    _settingService.SettingExists(settings, x => x.TextRotatedDegree, activeStoreScope);
+                    await _settingService.SettingExistsAsync(settings, x => x.TextRotatedDegree, activeStoreScope);
                 model.WatermarkPictureEnable_OverrideForStore =
-                    _settingService.SettingExists(settings, x => x.WatermarkPictureEnable, activeStoreScope);
+                    await _settingService.SettingExistsAsync(settings, x => x.WatermarkPictureEnable, activeStoreScope);
                 model.WatermarkPictureId_OverrideForStore =
-                    _settingService.SettingExists(settings, x => x.PictureId, activeStoreScope);
+                    await _settingService.SettingExistsAsync(settings, x => x.PictureId, activeStoreScope);
                 model.PictureSettings_OverrideForStore =
-                    _settingService.SettingExists(settings, x => x.PictureSettings, activeStoreScope);
+                    await _settingService.SettingExistsAsync(settings, x => x.PictureSettings, activeStoreScope);
                 model.ApplyOnProductPictures_OverrideForStore =
-                    _settingService.SettingExists(settings, x => x.ApplyOnProductPictures, activeStoreScope);
+                    await _settingService.SettingExistsAsync(settings, x => x.ApplyOnProductPictures, activeStoreScope);
                 model.ApplyOnCategoryPictures_OverrideForStore =
-                    _settingService.SettingExists(settings, x => x.ApplyOnCategoryPictures, activeStoreScope);
+                    await _settingService.SettingExistsAsync(settings, x => x.ApplyOnCategoryPictures, activeStoreScope);
                 model.ApplyOnManufacturerPictures_OverrideForStore =
-                    _settingService.SettingExists(settings, x => x.ApplyOnManufacturerPictures, activeStoreScope);
+                    await _settingService.SettingExistsAsync(settings, x => x.ApplyOnManufacturerPictures, activeStoreScope);
                 model.WatermarkMinimumImageHeightForWatermark_OverrideForStore =
-                    _settingService.SettingExists(settings, x => x.MinimumImageHeightForWatermark, activeStoreScope);
+                    await _settingService.SettingExistsAsync(settings, x => x.MinimumImageHeightForWatermark, activeStoreScope);
                 model.WatermarkMinimumImageWidthForWatermark_OverrideForStore =
-                    _settingService.SettingExists(settings, x => x.MinimumImageWidthForWatermark, activeStoreScope);
+                    await _settingService.SettingExistsAsync(settings, x => x.MinimumImageWidthForWatermark, activeStoreScope);
             }
+
             return View("~/Plugins/Misc.Watermark/Views/MiscWatermark/Configure.cshtml", model);
         }
 
         [HttpPost]
         public async Task<IActionResult> Configure(ConfigurationModel model)
         {
-            if (!_permissionService.Authorize(StandardPermissionProvider.ManagePlugins))
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManagePlugins))
                 return AccessDeniedView();
 
-            if (!ModelState.IsValid)
-            {
-                return Configure();
-            }
-
-            int activeStoreScope = _storeContext.ActiveStoreScopeConfiguration;
-
-            WatermarkSettings settings = _settingService.LoadSetting<WatermarkSettings>(activeStoreScope);
+            var activeStoreScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var settings = await _settingService.LoadSettingAsync<WatermarkSettings>(activeStoreScope);
 
             settings.WatermarkTextEnable = model.WatermarkTextEnable;
             settings.WatermarkText = model.WatermarkText;
             settings.WatermarkFont = model.WatermarkFont;
             if (model.TextColor != null)
             {
-                Rgba32.TryParseHex(model.TextColor, out var color);
+                SKColor.TryParse(model.TextColor, out var color);
                 settings.TextColor = color.ToRgb24Hex();
             }
             settings.TextRotatedDegree = model.TextRotatedDegree;
@@ -184,45 +178,45 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
             settings.MinimumImageHeightForWatermark = model.MinimumImageHeightForWatermark;
             settings.MinimumImageWidthForWatermark = model.MinimumImageHeightForWatermark;
 
-            _settingService.SaveSettingOverridablePerStore(settings,
+            await _settingService.SaveSettingOverridablePerStoreAsync(settings,
                 x => x.WatermarkTextEnable, model.WatermarkTextEnable_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
+            await _settingService.SaveSettingOverridablePerStoreAsync(settings,
                 x => x.WatermarkText, model.Text_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
+            await _settingService.SaveSettingOverridablePerStoreAsync(settings,
                 x => x.WatermarkFont, model.WatermarkFont_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
+            await _settingService.SaveSettingOverridablePerStoreAsync(settings,
                 x => x.TextColor, model.TextColor_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
+            await _settingService.SaveSettingOverridablePerStoreAsync(settings,
                 x => x.TextRotatedDegree, model.WatermarkTextRotatedDegree_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
+            await _settingService.SaveSettingOverridablePerStoreAsync(settings,
                 x => x.TextSettings, model.TextSettings_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
+            await _settingService.SaveSettingOverridablePerStoreAsync(settings,
                 x => x.WatermarkPictureEnable, model.WatermarkPictureEnable_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
+            await _settingService.SaveSettingOverridablePerStoreAsync(settings,
                 x => x.PictureId, model.WatermarkPictureId_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
+            await _settingService.SaveSettingOverridablePerStoreAsync(settings,
                 x => x.PictureSettings, model.PictureSettings_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
+            await _settingService.SaveSettingOverridablePerStoreAsync(settings,
                 x => x.ApplyOnProductPictures, model.ApplyOnProductPictures_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
+            await _settingService.SaveSettingOverridablePerStoreAsync(settings,
                 x => x.ApplyOnCategoryPictures, model.ApplyOnCategoryPictures_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
+            await _settingService.SaveSettingOverridablePerStoreAsync(settings,
                 x => x.ApplyOnManufacturerPictures, model.ApplyOnManufacturerPictures_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
+            await _settingService.SaveSettingOverridablePerStoreAsync(settings,
                 x => x.MinimumImageHeightForWatermark, model.WatermarkMinimumImageHeightForWatermark_OverrideForStore, activeStoreScope, false);
-            _settingService.SaveSettingOverridablePerStore(settings,
+            await _settingService.SaveSettingOverridablePerStoreAsync(settings,
                 x => x.MinimumImageWidthForWatermark, model.WatermarkMinimumImageWidthForWatermark_OverrideForStore, activeStoreScope, false);
 
-            new ClearCacheTask(EngineContext.Current.Resolve<IStaticCacheManager>()).Execute();
+            await new ClearCacheTask(EngineContext.Current.Resolve<IStaticCacheManager>()).ExecuteAsync();
             if (EngineContext.Current.Resolve<IPictureService>() is MiscWatermarkPictureService pictureService)
                 await pictureService.DeleteThumbs();
 
-            _notificationService.SuccessNotification(_localizationService.GetResource("Admin.Plugins.Saved"));
+            _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
 
-            return Configure();
+            return await Configure();
         }
 
-        private List<WatermarkPosition> PreparePositionList(CommonWatermarkSettings model)
+        private static List<WatermarkPosition> PreparePositionList(CommonWatermarkSettings model)
         {
             var positionList = new List<WatermarkPosition>();
             if (model.TopLeftCorner)
@@ -248,17 +242,15 @@ namespace Nop.Plugin.Misc.Watermark.Controllers
 
         private List<SelectListItem> GetAvailableFontNames()
         {
-            var customFontsCollection = _customFonts.FontCollection();
+            var customGroup = new SelectListGroup {Name = "Custom"};
+            var customFonts = _fontProvider.CustomFonts.Select(s =>
+                new SelectListItem {Text = s, Value = s, Group = customGroup});
 
-            IEnumerable<string> systemFonts = SixLabors.Fonts.SystemFonts.Families.Select(f => f.Name);
-            IEnumerable<string> customFonts = customFontsCollection.Families.Select(f => f.Name);
-            SelectListGroup customGroup = new SelectListGroup {Name = "Custom"};
-            SelectListGroup systemGroup = new SelectListGroup {Name = "System"};
-            return customFonts.Select(s => new SelectListItem {Text = s, Value = _customFonts.CustomFontPrefix + s, Group = customGroup})
-                .Concat(systemFonts.Select(s => new SelectListItem {Text = s, Value = s, Group = systemGroup}))
-                .ToList();
+            var systemGroup = new SelectListGroup {Name = "System"};
+            var systemFonts = _fontProvider.SystemFonts.Select(s =>
+                new SelectListItem {Text = s, Value = s, Group = systemGroup});
+            
+            return customFonts.Concat(systemFonts).ToList();
         }
-
-        
     }
 }

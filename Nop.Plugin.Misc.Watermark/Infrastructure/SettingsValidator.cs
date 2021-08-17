@@ -18,11 +18,16 @@ namespace Nop.Plugin.Misc.Watermark.Infrastructure
     {
         public CommonWatermarkSettingsValidator(ILocalizationService localizationService)
         {
-            RuleFor(x => x.Opacity).GreaterThanOrEqualTo(0).LessThanOrEqualTo(1).WithMessage(
-                string.Format(localizationService.GetResource("Plugins.Misc.Watermark.WatermarkOpacityErrorMessage"), 0, 1));
+            RuleFor(x => x.Opacity)
+                .InclusiveBetween(0, 1)
+                .WithMessage(string.Format(
+                    localizationService.GetResourceAsync("Plugins.Misc.Watermark.WatermarkOpacityErrorMessage").Result,
+                    0, 1));
 
-            RuleFor(x => x.Size).GreaterThanOrEqualTo(0).LessThanOrEqualTo(100).WithMessage(
-                 string.Format(localizationService.GetResource("Plugins.Misc.Watermark.SizeErrorMessage"), 0, 100));
+            RuleFor(x => x.Size)
+                .InclusiveBetween(0, 100)
+                .WithMessage(string.Format(
+                    localizationService.GetResourceAsync("Plugins.Misc.Watermark.SizeErrorMessage").Result, 0, 100));
         }
     }
 }

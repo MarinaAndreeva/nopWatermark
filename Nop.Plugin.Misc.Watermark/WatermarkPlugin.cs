@@ -2,29 +2,29 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Nop.Core;
 using Nop.Core.Caching;
-using Nop.Core.Domain.Localization;
 using Nop.Core.Infrastructure;
-using Nop.Core.Domain.Media;
+using Nop.Plugin.Misc.Watermark.Infrastructure;
 using Nop.Services.Caching;
 using Nop.Services.Common;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Media;
-using Nop.Plugin.Misc.Watermark.Infrastructure;
 using Nop.Plugin.Misc.Watermark.Services;
 using Nop.Services.Plugins;
-using SixLabors.ImageSharp.PixelFormats;
+using SkiaSharp;
 
 namespace Nop.Plugin.Misc.Watermark
 {
     public class WatermarkPlugin : BasePlugin, IMiscPlugin
     {
-        private readonly IPictureService _pictureService;
-        private readonly ILocalizationService _localizationService;
         private readonly ILanguageService _languageService;
+        private readonly ILocalizationService _localizationService;
+        private readonly IPictureService _pictureService;
         private readonly ISettingService _settingService;
+        private readonly INopFileProvider _fileProvider;
         private readonly IWebHelper _webHelper;
         private readonly string _pluginLocalesPath;
         private readonly string _defaultWatermarkPicturePath;
@@ -32,31 +32,29 @@ namespace Nop.Plugin.Misc.Watermark
         public WatermarkPlugin(ISettingService settingService, IPictureService pictureService,
             ILocalizationService localizationService, ILanguageService languageService, IWebHelper webHelper, INopFileProvider fileProvider)
         {
-            _settingService = settingService;
-            _pictureService = pictureService;
-            _localizationService = localizationService;
             _languageService = languageService;
+            _localizationService = localizationService;
+            _pictureService = pictureService;
+            _settingService = settingService;
+            _fileProvider = fileProvider;
             _webHelper = webHelper;
 
             _pluginLocalesPath = fileProvider.MapPath("~/Plugins/Misc.Watermark/Resources");
             _defaultWatermarkPicturePath = fileProvider.MapPath("~/Plugins/Misc.Watermark/Content/defaultWatermarkPicture.png");
         }
 
-        public override string GetConfigurationPageUrl()
-        {
-            return _webHelper.GetStoreLocation() + "Admin/MiscWatermark/Configure";
-        }
+        public override string GetConfigurationPageUrl() =>
+            _webHelper.GetStoreLocation() + "Admin/MiscWatermark/Configure";
 
-        public override void Install()
+        public override async Task InstallAsync()
         {
-            string defaultWatermarkPictureMapPath = _defaultWatermarkPicturePath;
-            WatermarkSettings settings = new WatermarkSettings
+            var settings = new WatermarkSettings
             {
                 WatermarkTextEnable = false,
                 WatermarkText = "watermark text",
                 WatermarkFont = "Arial",
-                TextColor = new Rgba32(8,3,71).ToRgb24Hex(),
-                TextSettings = new CommonSettings()
+                TextColor = new SKColor(8, 3, 71).ToRgb24Hex(),
+                TextSettings = new CommonSettings
                 {
                     Size = 50,
                     Opacity = 0.5,
@@ -64,9 +62,10 @@ namespace Nop.Plugin.Misc.Watermark
                 },
                 TextRotatedDegree = 0,
                 WatermarkPictureEnable = false,
-                PictureId = this._pictureService.InsertPicture(File.ReadAllBytes(defaultWatermarkPictureMapPath),
-                    "image/png", "defaultWatermarkPicture").Id,
-                PictureSettings = new CommonSettings()
+                PictureId = (await _pictureService.InsertPictureAsync(
+                    await _fileProvider.ReadAllBytesAsync(_defaultWatermarkPicturePath), MimeTypes.ImagePng,
+                    "defaultWatermarkPicture")).Id,
+                PictureSettings = new CommonSettings
                 {
                     Size = 50,
                     Opacity = 0.5,
@@ -78,64 +77,57 @@ namespace Nop.Plugin.Misc.Watermark
                 MinimumImageWidthForWatermark = 150,
                 MinimumImageHeightForWatermark = 150,
             };
-            _settingService.SaveSetting(settings);
+            
+            await _settingService.SaveSettingAsync(settings);
 
-            LoadLocaleResources();
+            await LoadLocaleResourcesAsync();
 
-            base.Install();
+            await base.InstallAsync();
         }
 
-        public override void Uninstall()
+        public override async Task UninstallAsync()
         {
-            Picture watermarkPicture = _pictureService.GetPictureById(_settingService.LoadSetting<WatermarkSettings>().PictureId);
+            var watermarkPicture = await _pictureService.GetPictureByIdAsync((await _settingService.LoadSettingAsync<WatermarkSettings>()).PictureId);
             if (watermarkPicture != null)
-            {
-                _pictureService.DeletePicture(watermarkPicture);
-            }
+                await _pictureService.DeletePictureAsync(watermarkPicture);
 
-            _settingService.DeleteSetting<WatermarkSettings>();
-            _localizationService.DeletePluginLocaleResources("Plugins.Misc.Watermark.");
+            await _settingService.DeleteSettingAsync<WatermarkSettings>();
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Misc.Watermark");
 
-            _settingService.ClearCache();
+            await _settingService.ClearCacheAsync();
 
-            new ClearCacheTask(EngineContext.Current.Resolve<IStaticCacheManager>()).Execute();
+            await new ClearCacheTask(EngineContext.Current.Resolve<IStaticCacheManager>()).ExecuteAsync();
             if (EngineContext.Current.Resolve<IPictureService>() is MiscWatermarkPictureService pictureService)
                 pictureService.DeleteThumbs().Wait();
 
-            base.Uninstall();
+            await base.UninstallAsync();
         }
 
-        private void LoadLocaleResources()
+        private async Task LoadLocaleResourcesAsync()
         {
-            DirectoryInfo localesDirectory = new DirectoryInfo(_pluginLocalesPath);
-
-            FileInfo defaultLocaleFile = localesDirectory.GetFiles("Locale.default.xml").FirstOrDefault();
+            var localesDirectory = new DirectoryInfo(_pluginLocalesPath);
+            var defaultLocaleFile = localesDirectory.GetFiles("Locale.default.xml").FirstOrDefault();
             if (defaultLocaleFile != null)
+                await loadLocalizationResourcesFile(defaultLocaleFile, await _languageService.GetAllLanguagesAsync(true));
+
+            foreach (var fileInfo in localesDirectory.GetFiles("Locale.*.xml"))
             {
-                using (var sr = new StreamReader(defaultLocaleFile.OpenRead(), Encoding.UTF8))
-                {
-                    foreach (var language in _languageService.GetAllLanguages(true))
-                    {
-                        _localizationService.ImportResourcesFromXml(language, sr);
-                    }
-                }
+                var langCode = fileInfo.Name.Split(new[] {'.'}).Reverse().ElementAt(1);
+                if (langCode == "default")
+                    continue;
+
+                var languages = (await _languageService.GetAllLanguagesAsync(true))
+                    .Where(x => x.UniqueSeoCode == langCode);
+                await loadLocalizationResourcesFile(fileInfo, languages);
             }
 
-            foreach (FileInfo fileInfo in localesDirectory.GetFiles("Locale.*.xml"))
+            async Task loadLocalizationResourcesFile(FileInfo fileInfo, IEnumerable<Nop.Core.Domain.Localization.Language> languages)
             {
-                var file = fileInfo.OpenRead();
-                string langCode = fileInfo.Name.Split(new[] {'.'}).Reverse().ElementAt(1);
-                if (langCode != "default")
+                foreach (var language in languages)
                 {
-                    using (var sr = new StreamReader(file, Encoding.UTF8))
-                    {
-                        Language language = _languageService.GetAllLanguages(true)
-                            .FirstOrDefault(x => x.UniqueSeoCode == langCode);
-                        if (language != null)
-                        {
-                            _localizationService.ImportResourcesFromXml(language, sr);
-                        }
-                    }
+                    await using var file = fileInfo.OpenRead();
+                    using var sr = new StreamReader(file, Encoding.UTF8);
+                    await _localizationService.ImportResourcesFromXmlAsync(language, sr);
                 }
             }
         }

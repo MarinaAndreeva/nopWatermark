@@ -9,419 +9,427 @@
 
 @await Component.InvokeAsync("StoreScopeConfiguration")
 <form asp-controller="MiscWatermark" asp-action="Configure" method="post">
-    <div class="panel-group clearfix">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                @T("Plugins.Misc.Watermark.Text")
+    <section class="content">
+        <div class="container-fluid">
+            <div class="cards-group">
+                <div class="card card-default">
+                    <div class="card-header">
+                        @T("Plugins.Misc.Watermark.Text")
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="WatermarkTextEnable_OverrideForStore" asp-input="WatermarkTextEnable" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="WatermarkTextEnable" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="WatermarkTextEnable" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="Text_OverrideForStore" asp-input="WatermarkText" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="WatermarkText" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="WatermarkText" />
+                                <span asp-validation-for="WatermarkText"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="WatermarkFont_OverrideForStore" asp-input="WatermarkFont" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="WatermarkFont" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-select asp-for="WatermarkFont" asp-items="Model.AvailableFontsList" />
+                                <span asp-validation-for="WatermarkFont"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="TextColor_OverrideForStore" asp-input="TextColor" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="TextColor" />
+                            </div>
+                            <div class="col-md-9">
+                                <input asp-for="TextColor" class="jscolor form-control" />
+                                <span asp-validation-for="TextColor"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <nop-override-store-checkbox asp-for="TextSettings_OverrideForStore" asp-parent-container="textsettings_group" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        </div>
+                        <div id="textsettings_group">
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <nop-label asp-for="TextSettings.Size" />
+                                </div>
+                                <div class="col-md-9">
+                                    <nop-editor asp-for="TextSettings.Size" />
+                                    <span asp-validation-for="TextSettings.Size"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <div class="label-wrapper">
+                                        <label class="control-label">
+                                            @T("Plugins.Misc.Watermark.WatermarkPosition")
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <div class="form-group row">
+                                                <div class="col-md-9">
+                                                    <nop-label asp-for="TextSettings.TopLeftCorner" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <nop-editor asp-for="TextSettings.TopLeftCorner" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group row">
+                                                <div class="col-md-9">
+                                                    <nop-label asp-for="TextSettings.TopCenter" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <nop-editor asp-for="TextSettings.TopCenter" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group row">
+                                                <div class="col-md-9">
+                                                    <nop-label asp-for="TextSettings.TopRightCorner" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <nop-editor asp-for="TextSettings.TopRightCorner" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <div class="form-group row">
+                                                <div class="col-md-9">
+                                                    <nop-label asp-for="TextSettings.CenterLeft" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <nop-editor asp-for="TextSettings.CenterLeft" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group row">
+                                                <div class="col-md-9">
+                                                    <nop-label asp-for="TextSettings.Center" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <nop-editor asp-for="TextSettings.Center" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group row">
+                                                <div class="col-md-9">
+                                                    <nop-label asp-for="TextSettings.CenterRight" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <nop-editor asp-for="TextSettings.CenterRight" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <div class="form-group row">
+                                                <div class="col-md-9">
+                                                    <nop-label asp-for="TextSettings.BottomLeftCorner" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <nop-editor asp-for="TextSettings.BottomLeftCorner" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group row">
+                                                <div class="col-md-9">
+                                                    <nop-label asp-for="TextSettings.BottomCenter" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <nop-editor asp-for="TextSettings.BottomCenter" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group row">
+                                                <div class="col-md-9">
+                                                    <nop-label asp-for="TextSettings.BottomRightCorner" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <nop-editor asp-for="TextSettings.BottomRightCorner" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <nop-override-store-checkbox asp-for="WatermarkTextRotatedDegree_OverrideForStore" asp-input="TextRotatedDegree" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                    <nop-label asp-for="TextRotatedDegree" />
+                                </div>
+                                <div class="col-md-9">
+                                    <input asp-for="TextRotatedDegree" class="dial" />
+                                    <span asp-validation-for="TextRotatedDegree"></span>
+                                    <script>
+                                        $(function () {
+                                            $('.dial').knob({
+                                                'min': 0,
+                                                'max': 360,
+                                                'angleOffset': -90,
+                                                'cursor': true
+                                            });
+                                        });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="TextSettings.Opacity" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="TextSettings.Opacity" />
+                                <span asp-validation-for="TextSettings.Opacity"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card card-default">
+                    <div class="card-header">
+                        @T("Plugins.Misc.Watermark.Picture")
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="WatermarkPictureEnable_OverrideForStore" asp-input="WatermarkPictureEnable" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="WatermarkPictureEnable" />
+                            </div>
+                            <div class="col-md-9 watermark-picture">
+                                <nop-editor asp-for="WatermarkPictureEnable" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="WatermarkPictureId_OverrideForStore" asp-input="PictureId" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="PictureId" />
+                            </div>
+                            <div class="col-md-9 watermark-picture">
+                                <nop-editor asp-for="PictureId" />
+                                <span asp-validation-for="PictureId"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <nop-override-store-checkbox asp-for="PictureSettings_OverrideForStore" asp-parent-container="picturesettings_group" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        </div>
+                        <div id="picturesettings_group">
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <nop-label asp-for="PictureSettings.Size" />
+                                </div>
+                                <div class="col-md-9">
+                                    <nop-editor asp-for="PictureSettings.Size" />
+                                    <span asp-validation-for="PictureSettings.Size"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <div class="label-wrapper">
+                                        <label class="control-label">
+                                            @T("Plugins.Misc.Watermark.WatermarkPosition")
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <div class="form-group row">
+                                                <div class="col-md-9">
+                                                    <nop-label asp-for="PictureSettings.TopLeftCorner" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <nop-editor asp-for="PictureSettings.TopLeftCorner" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group row">
+                                                <div class="col-md-9">
+                                                    <nop-label asp-for="PictureSettings.TopCenter" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <nop-editor asp-for="PictureSettings.TopCenter" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group row">
+                                                <div class="col-md-9">
+                                                    <nop-label asp-for="PictureSettings.TopRightCorner" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <nop-editor asp-for="PictureSettings.TopRightCorner" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <div class="form-group row">
+                                                <div class="col-md-9">
+                                                    <nop-label asp-for="PictureSettings.CenterLeft" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <nop-editor asp-for="PictureSettings.CenterLeft" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group row">
+                                                <div class="col-md-9">
+                                                    <nop-label asp-for="PictureSettings.Center" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <nop-editor asp-for="PictureSettings.Center" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group row">
+                                                <div class="col-md-9">
+                                                    <nop-label asp-for="PictureSettings.CenterRight" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <nop-editor asp-for="PictureSettings.CenterRight" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <div class="form-group row">
+                                                <div class="col-md-9">
+                                                    <nop-label asp-for="PictureSettings.BottomLeftCorner" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <nop-editor asp-for="PictureSettings.BottomLeftCorner" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group row">
+                                                <div class="col-md-9">
+                                                    <nop-label asp-for="PictureSettings.BottomCenter" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <nop-editor asp-for="PictureSettings.BottomCenter" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group row">
+                                                <div class="col-md-9">
+                                                    <nop-label asp-for="PictureSettings.BottomRightCorner" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <nop-editor asp-for="PictureSettings.BottomRightCorner" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3">
+                                    <nop-label asp-for="PictureSettings.Opacity" />
+                                </div>
+                                <div class="col-md-9">
+                                    <nop-editor asp-for="PictureSettings.Opacity" />
+                                    <span asp-validation-for="PictureSettings.Opacity"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <div class="card card-default">
+                <div class="card-header">
+                    @T("Plugins.Misc.Watermark.CommonSettings")
+                </div>
+                <div class="card-body">
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-override-store-checkbox asp-for="ApplyOnProductPictures_OverrideForStore" asp-input="ApplyOnProductPictures" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                            <nop-label asp-for="ApplyOnProductPictures" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="ApplyOnProductPictures" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-override-store-checkbox asp-for="ApplyOnCategoryPictures_OverrideForStore" asp-input="ApplyOnCategoryPictures" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                            <nop-label asp-for="ApplyOnCategoryPictures" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="ApplyOnCategoryPictures" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-override-store-checkbox asp-for="ApplyOnManufacturerPictures_OverrideForStore" asp-input="ApplyOnManufacturerPictures" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                            <nop-label asp-for="ApplyOnManufacturerPictures" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="ApplyOnManufacturerPictures" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-override-store-checkbox asp-for="WatermarkMinimumImageWidthForWatermark_OverrideForStore" asp-input="MinimumImageWidthForWatermark" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                            <nop-label asp-for="MinimumImageWidthForWatermark" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="MinimumImageWidthForWatermark" />
+                            <span asp-validation-for="MinimumImageWidthForWatermark"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-override-store-checkbox asp-for="WatermarkMinimumImageHeightForWatermark_OverrideForStore" asp-input="MinimumImageHeightForWatermark" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                            <nop-label asp-for="MinimumImageHeightForWatermark" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="MinimumImageHeightForWatermark" />
+                            <span asp-validation-for="MinimumImageHeightForWatermark"></span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="panel-body">
-                <div class="form-group col-md-12">
-                    <div class="col-md-3">
-                        <nop-override-store-checkbox asp-for="WatermarkTextEnable_OverrideForStore" asp-input="WatermarkTextEnable" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
-                        <nop-label asp-for="WatermarkTextEnable"/>
-                    </div>
-                    <div class="col-md-9">
-                        <nop-editor asp-for="WatermarkTextEnable"/>
-                    </div>
-                </div>
-                <div class="form-group col-md-12">
-                    <div class="col-md-3">
-                        <nop-override-store-checkbox asp-for="Text_OverrideForStore" asp-input="WatermarkText" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
-                        <nop-label asp-for="WatermarkText" />
-                    </div>
-                    <div class="col-md-9">
-                        <nop-editor asp-for="WatermarkText" />
-                        <span asp-validation-for="WatermarkText"></span>
-                    </div>
-                </div>
-                <div class="form-group col-md-12">
-                    <div class="col-md-3">
-                        <nop-override-store-checkbox asp-for="WatermarkFont_OverrideForStore" asp-input="WatermarkFont" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
-                        <nop-label asp-for="WatermarkFont" />
-                    </div>
-                    <div class="col-md-9">
-                        <nop-select asp-for="WatermarkFont" asp-items="Model.AvailableFontsList"/>
-                        <span asp-validation-for="WatermarkFont"></span>
-                    </div>
-                </div>
-                <div class="form-group col-md-12">
-                    <div class="col-md-3">
-                        <nop-override-store-checkbox asp-for="TextColor_OverrideForStore" asp-input="TextColor" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
-                        <nop-label asp-for="TextColor" />
-                    </div>
-                    <div class="col-md-9">
-                        <input asp-for="TextColor" class="jscolor form-control"/>
-                        <span asp-validation-for="TextColor"></span>
-                    </div>
-                </div>
-                <div class="col-md-12">
-                    <nop-override-store-checkbox asp-for="TextSettings_OverrideForStore" asp-parent-container="textsettings_group" asp-store-scope="@Model.ActiveStoreScopeConfiguration" /> 
-                </div>
-                <div id="textsettings_group">
-                    <div class="form-group col-md-12">
-                        <div class="col-md-3">
-                            <nop-label asp-for="TextSettings.Size" />
-                        </div>
-                        <div class="col-md-9">
-                            <nop-editor asp-for="TextSettings.Size"/>
-                            <span asp-validation-for="TextSettings.Size"></span>
-                        </div>
-                    </div>
-                    <div class="form-group col-md-12">
-                        <div class="col-md-3">
-                            <div class="label-wrapper">
-                                <label class="control-label">
-                                    @T("Plugins.Misc.Watermark.WatermarkPosition")
-                                </label>
-                            </div>
-                        </div>
-                        <div class="col-md-9">
-                            <div class="col-md-12">
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            <nop-label asp-for="TextSettings.TopLeftCorner" />
-                                        </div>
-                                        <div class="col-md-3">
-                                            <nop-editor asp-for="TextSettings.TopLeftCorner" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            <nop-label asp-for="TextSettings.TopCenter" />
-                                        </div>
-                                        <div class="col-md-3">
-                                            <nop-editor asp-for="TextSettings.TopCenter" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            <nop-label asp-for="TextSettings.TopRightCorner" />
-                                        </div>
-                                        <div class="col-md-3">
-                                            <nop-editor asp-for="TextSettings.TopRightCorner" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            <nop-label asp-for="TextSettings.CenterLeft" />
-                                        </div>
-                                        <div class="col-md-3">
-                                            <nop-editor asp-for="TextSettings.CenterLeft" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            <nop-label asp-for="TextSettings.Center" />
-                                        </div>
-                                        <div class="col-md-3">
-                                            <nop-editor asp-for="TextSettings.Center" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            <nop-label asp-for="TextSettings.CenterRight" />
-                                        </div>
-                                        <div class="col-md-3">
-                                            <nop-editor asp-for="TextSettings.CenterRight" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            <nop-label asp-for="TextSettings.BottomLeftCorner" />
-                                        </div>
-                                        <div class="col-md-3">
-                                            <nop-editor asp-for="TextSettings.BottomLeftCorner" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            <nop-label asp-for="TextSettings.BottomCenter" />
-                                        </div>
-                                        <div class="col-md-3">
-                                            <nop-editor asp-for="TextSettings.BottomCenter" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            <nop-label asp-for="TextSettings.BottomRightCorner" />
-                                        </div>
-                                        <div class="col-md-3">
-                                            <nop-editor asp-for="TextSettings.BottomRightCorner" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group col-md-12">
-                        <div class="col-md-3">
-                            <nop-label asp-for="TextSettings.Opacity" />
-                        </div>
-                        <div class="col-md-9">
-                            <nop-editor asp-for="TextSettings.Opacity" />
-                            <span asp-validation-for="TextSettings.Opacity"></span>
+            <div class="card card-default">
+                <div class="card-body">
+                    <div class="form-group row">
+                        <div class="col-md-9 offset-md-3">
+                            <button type="submit" name="save" class="btn btn-primary">@T("Admin.Common.Save")</button>
                         </div>
                     </div>
                 </div>
-                <div class="form-group col-md-12">
-                    <div class="col-md-3">
-                        <nop-override-store-checkbox asp-for="WatermarkTextRotatedDegree_OverrideForStore" asp-input="TextRotatedDegree" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
-                        <nop-label asp-for="TextRotatedDegree" />
-                    </div>
-                    <div class="col-md-9">
-                        <input asp-for="TextRotatedDegree" class="dial"/>
-                        <span asp-validation-for="TextRotatedDegree"></span>
-                        <script>
-                            $(function () {
-                                $('.dial').knob({
-                                    'min': 0,
-                                    'max': 360,
-                                    'angleOffset': -90,
-                                    'cursor': true
-                                });
-                            });
-                        </script>
-                    </div>
-                </div>
+            </div>
             </div>
         </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                @T("Plugins.Misc.Watermark.Picture")
-            </div>
-            <div class="panel-body">
-                <div class="form-group col-md-12">
-                    <div class="col-md-3">
-                        <nop-override-store-checkbox asp-for="WatermarkPictureEnable_OverrideForStore" asp-input="WatermarkPictureEnable" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
-                        <nop-label asp-for="WatermarkPictureEnable" />
-                    </div>
-                    <div class="col-md-9 watermark-picture">
-                        <nop-editor asp-for="WatermarkPictureEnable" />
-                    </div>
-                </div>
-                <div class="form-group col-md-12">
-                    <div class="col-md-3">
-                        <nop-override-store-checkbox asp-for="WatermarkPictureId_OverrideForStore" asp-input="PictureId" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
-                        <nop-label asp-for="PictureId" />
-                    </div>
-                    <div class="col-md-9 watermark-picture">
-                        <nop-editor asp-for="PictureId" />
-                        <span asp-validation-for="PictureId"></span>
-                    </div>
-                </div>
-
-                <div class="col-md-12">
-                    <nop-override-store-checkbox asp-for="PictureSettings_OverrideForStore" asp-parent-container="picturesettings_group" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
-                </div>
-                <div id="picturesettings_group">
-                    <div class="form-group col-md-12">
-                        <div class="col-md-3">
-                            <nop-label asp-for="PictureSettings.Size" />
-                        </div>
-                        <div class="col-md-9">
-                            <nop-editor asp-for="PictureSettings.Size" />
-                            <span asp-validation-for="PictureSettings.Size"></span>
-                        </div>
-                    </div>
-                    <div class="form-group col-md-12">
-                        <div class="col-md-3">
-                            <div class="label-wrapper">
-                                <label class="control-label">
-                                    @T("Plugins.Misc.Watermark.WatermarkPosition")
-                                </label>
-                            </div>
-                        </div>
-                        <div class="col-md-9">
-                            <div class="col-md-12">
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            <nop-label asp-for="PictureSettings.TopLeftCorner" />
-                                        </div>
-                                        <div class="col-md-3">
-                                            <nop-editor asp-for="PictureSettings.TopLeftCorner" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            <nop-label asp-for="PictureSettings.TopCenter" />
-                                        </div>
-                                        <div class="col-md-3">
-                                            <nop-editor asp-for="PictureSettings.TopCenter" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            <nop-label asp-for="PictureSettings.TopRightCorner" />
-                                        </div>
-                                        <div class="col-md-3">
-                                            <nop-editor asp-for="PictureSettings.TopRightCorner" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            <nop-label asp-for="PictureSettings.CenterLeft" />
-                                        </div>
-                                        <div class="col-md-3">
-                                            <nop-editor asp-for="PictureSettings.CenterLeft" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            <nop-label asp-for="PictureSettings.Center" />
-                                        </div>
-                                        <div class="col-md-3">
-                                            <nop-editor asp-for="PictureSettings.Center" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            <nop-label asp-for="PictureSettings.CenterRight" />
-                                        </div>
-                                        <div class="col-md-3">
-                                            <nop-editor asp-for="PictureSettings.CenterRight" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            <nop-label asp-for="PictureSettings.BottomLeftCorner" />
-                                        </div>
-                                        <div class="col-md-3">
-                                            <nop-editor asp-for="PictureSettings.BottomLeftCorner" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            <nop-label asp-for="PictureSettings.BottomCenter" />
-                                        </div>
-                                        <div class="col-md-3">
-                                            <nop-editor asp-for="PictureSettings.BottomCenter" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="col-md-12">
-                                        <div class="col-md-9">
-                                            <nop-label asp-for="PictureSettings.BottomRightCorner" />
-                                        </div>
-                                        <div class="col-md-3">
-                                            <nop-editor asp-for="PictureSettings.BottomRightCorner" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group col-md-12">
-                        <div class="col-md-3">
-                            <nop-label asp-for="PictureSettings.Opacity" />
-                        </div>
-                        <div class="col-md-9">
-                            <nop-editor asp-for="PictureSettings.Opacity" />
-                            <span asp-validation-for="PictureSettings.Opacity"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                @T("Plugins.Misc.Watermark.CommonSettings")
-            </div>
-            <div class="panel-body">
-                <div class="form-group col-md-12">
-                    <div class="col-md-3">
-                        <nop-override-store-checkbox asp-for="ApplyOnProductPictures_OverrideForStore" asp-input="ApplyOnProductPictures" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
-                        <nop-label asp-for="ApplyOnProductPictures" />
-                    </div>
-                    <div class="col-md-9">
-                        <nop-editor asp-for="ApplyOnProductPictures" />
-                    </div>
-                </div>
-                <div class="form-group col-md-12">
-                    <div class="col-md-3">
-                        <nop-override-store-checkbox asp-for="ApplyOnCategoryPictures_OverrideForStore" asp-input="ApplyOnCategoryPictures" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
-                        <nop-label asp-for="ApplyOnCategoryPictures" />
-                    </div>
-                    <div class="col-md-9">
-                        <nop-editor asp-for="ApplyOnCategoryPictures" />
-                    </div>
-                </div>
-                <div class="form-group col-md-12">
-                    <div class="col-md-3">
-                        <nop-override-store-checkbox asp-for="ApplyOnManufacturerPictures_OverrideForStore" asp-input="ApplyOnManufacturerPictures" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
-                        <nop-label asp-for="ApplyOnManufacturerPictures" />
-                    </div>
-                    <div class="col-md-9">
-                        <nop-editor asp-for="ApplyOnManufacturerPictures" />
-                    </div>
-                </div>
-                <div class="form-group col-md-12">
-                    <div class="col-md-3">
-                        <nop-override-store-checkbox asp-for="WatermarkMinimumImageWidthForWatermark_OverrideForStore" asp-input="MinimumImageWidthForWatermark" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
-                        <nop-label asp-for="MinimumImageWidthForWatermark" />
-                    </div>
-                    <div class="col-md-9">
-                        <nop-editor asp-for="MinimumImageWidthForWatermark" />
-                        <span asp-validation-for="MinimumImageWidthForWatermark"></span>
-                    </div>
-                </div>
-                <div class="form-group col-md-12">
-                    <div class="col-md-3">
-                        <nop-override-store-checkbox asp-for="WatermarkMinimumImageHeightForWatermark_OverrideForStore" asp-input="MinimumImageHeightForWatermark" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
-                        <nop-label asp-for="MinimumImageHeightForWatermark" />
-                    </div>
-                    <div class="col-md-9">
-                        <nop-editor asp-for="MinimumImageHeightForWatermark" />
-                        <span asp-validation-for="MinimumImageHeightForWatermark"></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="panel-body col-md-12 button-align-center">
-                <input type="submit" name="save" class="btn bg-blue" value="@T("Admin.Common.Save")" />
-            </div>
-        </div>
-    </div>
+    </section>
 </form>
 <script>
     function checkOverriddenStoreValue(obj, selector) {

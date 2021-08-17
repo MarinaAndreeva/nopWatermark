@@ -1,4 +1,4 @@
-﻿using Autofac;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Nop.Core.Configuration;
 using Nop.Core.Infrastructure;
 using Nop.Core.Infrastructure.DependencyManagement;
@@ -9,25 +9,16 @@ namespace Nop.Plugin.Misc.Watermark.Infrastructure
 {
     public class DependencyRegistrar : IDependencyRegistrar
     {
-        public virtual void Register(ContainerBuilder builder, ITypeFinder typeFinder, NopConfig config)
+        public virtual void Register(IServiceCollection services, ITypeFinder typeFinder, AppSettings appSettings)
         {
-            if (config.AzureBlobStorageEnabled)
-            {
-                builder.RegisterType<MiscWatermarkAzurePictureService>().As<IPictureService>().InstancePerLifetimeScope();
-            }
+            if (appSettings.AzureBlobConfig.Enabled)
+                services.AddScoped<IPictureService, MiscWatermarkAzurePictureService>();
             else
-            {
-                builder.RegisterType<MiscWatermarkPictureService>().As<IPictureService>().InstancePerLifetimeScope();
-            }
-            builder.RegisterType<CustomFonts>().SingleInstance();
+                services.AddScoped<IPictureService, MiscWatermarkPictureService>();
+            
+            services.AddScoped<FontProvider>();
         }
 
-        public int Order
-        {
-            get
-            {
-                return 5;
-            }
-        }
+        public int Order => 5;
     }
 }
