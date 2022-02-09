@@ -44,7 +44,6 @@ namespace Nop.Plugin.Misc.Watermark.Services
             ISettingService settingService,
             IWebHelper webHelper,
             MediaSettings mediaSettings,
-            INopDataProvider dataProvider,
             IStoreContext storeContext,
             INopFileProvider fileProvider,
             IProductAttributeParser productAttributeParser,
@@ -63,7 +62,6 @@ namespace Nop.Plugin.Misc.Watermark.Services
                 settingService,
                 webHelper,
                 mediaSettings,
-                dataProvider,
                 storeContext,
                 fileProvider,
                 productAttributeParser,
@@ -85,13 +83,13 @@ namespace Nop.Plugin.Misc.Watermark.Services
             if (_isInitialized)
                 return;
 
-            if (string.IsNullOrEmpty(appSettings.AzureBlobConfig.ConnectionString))
+            if (string.IsNullOrEmpty(appSettings.Get<AzureBlobConfig>().ConnectionString))
                 throw new Exception("Azure connection string for Blob is not specified");
 
-            if (string.IsNullOrEmpty(appSettings.AzureBlobConfig.ContainerName))
+            if (string.IsNullOrEmpty(appSettings.Get<AzureBlobConfig>().ContainerName))
                 throw new Exception("Azure container name for Blob is not specified");
 
-            if (string.IsNullOrEmpty(appSettings.AzureBlobConfig.EndPoint))
+            if (string.IsNullOrEmpty(appSettings.Get<AzureBlobConfig>().EndPoint))
                 throw new Exception("Azure end point for Blob is not specified");
 
             lock (_locker)
@@ -99,10 +97,10 @@ namespace Nop.Plugin.Misc.Watermark.Services
                 if (_isInitialized)
                     return;
 
-                _azureBlobStorageAppendContainerName = appSettings.AzureBlobConfig.AppendContainerName;
-                _azureBlobStorageConnectionString = appSettings.AzureBlobConfig.ConnectionString;
-                _azureBlobStorageContainerName = appSettings.AzureBlobConfig.ContainerName.Trim().ToLower();
-                _azureBlobStorageEndPoint = appSettings.AzureBlobConfig.EndPoint.Trim().ToLower().TrimEnd('/');
+                _azureBlobStorageAppendContainerName = appSettings.Get<AzureBlobConfig>().AppendContainerName;
+                _azureBlobStorageConnectionString = appSettings.Get<AzureBlobConfig>().ConnectionString;
+                _azureBlobStorageContainerName = appSettings.Get<AzureBlobConfig>().ContainerName.Trim().ToLower();
+                _azureBlobStorageEndPoint = appSettings.Get<AzureBlobConfig>().EndPoint.Trim().ToLower().TrimEnd('/');
 
                 _blobServiceClient = new BlobServiceClient(_azureBlobStorageConnectionString);
                 _blobContainerClient = _blobServiceClient.GetBlobContainerClient(_azureBlobStorageContainerName);
@@ -180,7 +178,9 @@ namespace Nop.Plugin.Misc.Watermark.Services
             }
 
             if (headers is null)
-                await blobClient.UploadAsync(ms);
+                //We must explicitly indicate through the parameter that the object needs to be overwritten if it already exists
+                //See more: https://github.com/Azure/azure-sdk-for-net/issues/9470
+                await blobClient.UploadAsync(ms, overwrite: true);
             else
                 await blobClient.UploadAsync(ms, new BlobUploadOptions { HttpHeaders = headers });
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -43,8 +44,7 @@ namespace Nop.Plugin.Misc.Watermark
             _defaultWatermarkPicturePath = fileProvider.MapPath("~/Plugins/Misc.Watermark/Content/defaultWatermarkPicture.png");
         }
 
-        public override string GetConfigurationPageUrl() =>
-            _webHelper.GetStoreLocation() + "Admin/MiscWatermark/Configure";
+        public override string GetConfigurationPageUrl() => $"{_webHelper.GetStoreLocation()}Admin/MiscWatermark/Configure";
 
         public override async Task InstallAsync()
         {
@@ -113,7 +113,7 @@ namespace Nop.Plugin.Misc.Watermark
             foreach (var fileInfo in localesDirectory.GetFiles("Locale.*.xml"))
             {
                 var langCode = fileInfo.Name.Split(new[] {'.'}).Reverse().ElementAt(1);
-                if (langCode == "default")
+                if (langCode.Equals("default", StringComparison.InvariantCultureIgnoreCase))
                     continue;
 
                 var languages = (await _languageService.GetAllLanguagesAsync(true))

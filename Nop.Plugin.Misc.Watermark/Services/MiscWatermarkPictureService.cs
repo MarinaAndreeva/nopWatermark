@@ -44,7 +44,6 @@ namespace Nop.Plugin.Misc.Watermark.Services
             ISettingService settingService,
             IWebHelper webHelper,
             MediaSettings mediaSettings,
-            INopDataProvider dataProvider,
             IStoreContext storeContext,
             INopFileProvider fileProvider,
             IProductAttributeParser productAttributeParser,
@@ -54,7 +53,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
             IHttpContextAccessor httpContextAccessor,
             IPluginService pluginService,
             FontProvider fontProvider)
-            : base(dataProvider,
+            : base(
                 downloadService,
                 httpContextAccessor,
                 fileProvider,
@@ -200,7 +199,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
 
                 outputImage.Dispose();
 
-                SaveThumbAsync(thumbFilePath, thumbFileName, string.Empty, pictureBinary).Wait();
+                SaveThumbAsync(thumbFilePath, thumbFileName, picture.MimeType, pictureBinary).Wait();
             }
             finally
             {

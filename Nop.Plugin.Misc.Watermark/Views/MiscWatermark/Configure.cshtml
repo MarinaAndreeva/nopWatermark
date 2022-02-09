@@ -1,11 +1,11 @@
 ﻿@model Nop.Plugin.Misc.Watermark.Models.ConfigurationModel
 @{
     Layout = "_ConfigurePlugin";
-
-    Html.AddScriptParts("~/Plugins/Misc.Watermark/Script/jscolor.js");
-    Html.AddScriptParts("~/Plugins/Misc.Watermark/Script/jquery.knob.js");
-    Html.AppendCssFileParts("~/Plugins/Misc.Watermark/Content/watermark.css");
 }
+
+<script asp-exclude-from-bundle="true" src="~/Plugins/Misc.Watermark/Script/jscolor.js"></script>
+<script asp-exclude-from-bundle="true" src="~/Plugins/Misc.Watermark/Script/jquery.knob.js"></script>
+<link rel="stylesheet" href="~/Plugins/Misc.Watermark/Content/watermark.css" />
 
 @await Component.InvokeAsync("StoreScopeConfiguration")
 <form asp-controller="MiscWatermark" asp-action="Configure" method="post">
