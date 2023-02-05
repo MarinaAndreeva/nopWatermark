@@ -32,7 +32,7 @@ namespace Nop.Plugin.Misc.Watermark.Infrastructure
 
         public IEnumerable<string> SystemFonts =>
             SKFontManager.Default.FontFamilies
-                .Where(name => !name.IsNullOrEmpty()); // filter font families without a name
+                .Where(name => !string.IsNullOrEmpty(name)); // filter font families without a name
 
         public IEnumerable<string> CustomFonts => _customFonts.Value.Keys;
 

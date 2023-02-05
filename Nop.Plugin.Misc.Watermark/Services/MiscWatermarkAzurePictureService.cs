@@ -18,6 +18,7 @@ using Nop.Services.Configuration;
 using Nop.Services.Media;
 using Nop.Services.Seo;
 using Nop.Services.Plugins;
+using Nop.Services.Logging;
 
 namespace Nop.Plugin.Misc.Watermark.Services
 {
@@ -51,6 +52,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
             IUrlRecordService urlRecordService,
             IDownloadService downloadService,
             IHttpContextAccessor httpContextAccessor,
+            ILogger logger,
             IPluginService pluginService,
             FontProvider fontProvider,
             IStaticCacheManager staticCacheManager,
@@ -69,6 +71,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
                 urlRecordService,
                 downloadService,
                 httpContextAccessor,
+                logger,
                 pluginService,
                 fontProvider)
         {

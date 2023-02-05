@@ -13,6 +13,7 @@ using Nop.Data;
 using Nop.Plugin.Misc.Watermark.Infrastructure;
 using Nop.Services.Catalog;
 using Nop.Services.Configuration;
+using Nop.Services.Logging;
 using Nop.Services.Media;
 using Nop.Services.Plugins;
 using Nop.Services.Seo;
@@ -51,11 +52,13 @@ namespace Nop.Plugin.Misc.Watermark.Services
             IUrlRecordService urlRecordService,
             IDownloadService downloadService,
             IHttpContextAccessor httpContextAccessor,
+            ILogger logger,
             IPluginService pluginService,
             FontProvider fontProvider)
             : base(
                 downloadService,
                 httpContextAccessor,
+                logger,
                 fileProvider,
                 productAttributeParser,
                 pictureRepository,
@@ -140,7 +143,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
             string thumbFileName;
             if (storeId == 1)
             {
-                if (targetSize == 0)
+                if (targetSize == 0 || picture.MimeType == MimeTypes.ImageSvg)
                     thumbFileName = !string.IsNullOrEmpty(seoFileName)
                         ? $"{picture.Id:0000000}_{seoFileName}.{lastPart}"
                         : $"{picture.Id:0000000}.{lastPart}";
@@ -151,7 +154,7 @@ namespace Nop.Plugin.Misc.Watermark.Services
             }
             else
             {
-                if (targetSize == 0)
+                if (targetSize == 0 || picture.MimeType == MimeTypes.ImageSvg)
                     thumbFileName = !string.IsNullOrEmpty(seoFileName)
                         ? $"{picture.Id:0000000}_{seoFileName}_{storeId}.{lastPart}"
                         : $"{picture.Id:0000000}_{storeId}.{lastPart}";
@@ -176,30 +179,38 @@ namespace Nop.Plugin.Misc.Watermark.Services
             mutex.WaitOne();
             try
             {
-                using var inputImage = SKBitmap.Decode(pictureBinary);
-                SKBitmap outputImage = inputImage;
+                // There is no sense of placing watermark on SVG image
+                if (picture.MimeType != MimeTypes.ImageSvg)
+                {
+                    using var inputImage = SKBitmap.Decode(pictureBinary);
+                    SKBitmap outputImage = inputImage;
 
-                if (targetSize != 0) //resizing required
-                    try
-                    {
-                        var newSize =
-                            ScaleRectangleToFitBounds(new SKSizeI(targetSize, targetSize), inputImage.Info.Size);
-                        outputImage = inputImage.Resize(newSize, SKFilterQuality.Medium);
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
+                    if (targetSize != 0) //resizing required
+                        try
+                        {
+                            var newSize =
+                                ScaleRectangleToFitBounds(new SKSizeI(targetSize, targetSize), inputImage.Info.Size);
+                            outputImage = inputImage.Resize(newSize, SKFilterQuality.Medium);
+                        }
+                        catch
+                        {
+                            // ignored
+                        }
 
-                MakeImageWatermarkAsync(outputImage, picture.Id).Wait();
+                    MakeImageWatermarkAsync(outputImage, picture.Id).Wait();
 
-                var format = GetImageFormatByMimeType(picture.MimeType);
-                pictureBinary = outputImage.Encode(format,
-                    _mediaSettings.DefaultImageQuality > 0 ? _mediaSettings.DefaultImageQuality : 80).ToArray();
+                    var format = GetImageFormatByMimeType(picture.MimeType);
+                    pictureBinary = outputImage.Encode(format,
+                        _mediaSettings.DefaultImageQuality > 0 ? _mediaSettings.DefaultImageQuality : 80).ToArray();
 
-                outputImage.Dispose();
+                    outputImage.Dispose();
 
-                SaveThumbAsync(thumbFilePath, thumbFileName, picture.MimeType, pictureBinary).Wait();
+                    SaveThumbAsync(thumbFilePath, thumbFileName, picture.MimeType, pictureBinary).Wait();
+                }
+                else
+                {
+                    SaveThumbAsync(thumbFilePath, thumbFileName, picture.MimeType, pictureBinary).Wait();
+                }               
             }
             finally
             {
