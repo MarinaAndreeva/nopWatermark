@@ -4,7 +4,9 @@
 ![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg) 
 [![License: GPL v3](https://img.shields.io/badge/license-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-This repository contains Image Watermark Plugin for NopCommerce version 3.5, 3.6, 3.7, 3.8, 3.9, 4.0, 4.10, 4.20, 4.30, 4.40, 4.50. This plugin dynamically adds watermarks (text or picture) to the store pictures without changing the original images. This plugin also supports a multi-store configuration.
+This repository contains Image Watermark Plugin for NopCommerce version 3.5, 3.6, 3.7, 3.8, 3.9, 4.0, 4.10, 4.20, 4.30, 4.40, 4.50, 4.60. This plugin dynamically adds watermarks (text or picture) to the store pictures without changing the original images. This plugin also supports a multi-store configuration.
+
+**Please note:** this plugin doesn't apply watermarks to SVG images.
 
 ## Table of contents
 
